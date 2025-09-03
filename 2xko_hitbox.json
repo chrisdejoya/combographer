@@ -1,0 +1,209 @@
+{
+  "default_width": 0,
+  "default_height": 0,
+  "space_h": 0,
+  "space_v": 0,
+  "flags": 4,
+  "overlay_width": 2542,
+  "overlay_height": 1238,
+  "elements": [
+    {
+      "type": 2,
+      "pos": [
+        770,
+        865
+      ],
+      "id": "UP",
+      "z_level": "0",
+      "mapping": [
+        0,
+        0,
+        372,
+        373
+      ],
+      "code": 60429
+    },
+    {
+      "type": 2,
+      "pos": [
+        385,
+        195
+      ],
+      "id": "DOWN",
+      "z_level": "0",
+      "mapping": [
+        371,
+        0,
+        372,
+        373
+      ],
+      "code": 60430
+    },
+    {
+      "type": 2,
+      "pos": [
+        0,
+        195
+      ],
+      "id": "LEFT",
+      "z_level": "0",
+      "mapping": [
+        744,
+        1,
+        372,
+        373
+      ],
+      "code": 60427
+    },
+    {
+      "type": 2,
+      "pos": [
+        725,
+        395
+      ],
+      "id": "RIGHT",
+      "z_level": "0",
+      "mapping": [
+        1118,
+        0,
+        372,
+        373
+      ],
+      "code": 60428
+    },
+    {
+      "type": 2,
+      "pos": [
+        1072,
+        195
+      ],
+      "id": "L",
+      "z_level": "0",
+      "mapping": [
+        1491,
+        0,
+        372,
+        373
+      ],
+      "code": 60418
+    },
+    {
+      "type": 2,
+      "pos": [
+        1415,
+        45
+      ],
+      "id": "M",
+      "z_level": "0",
+      "mapping": [
+        1861,
+        0,
+        372,
+        373
+      ],
+      "code": 60419
+    },
+    {
+      "type": 2,
+      "pos": [
+        1790,
+        5
+      ],
+      "id": "H",
+      "z_level": "0",
+      "mapping": [
+        2233,
+        0,
+        372,
+        373
+      ],
+      "code": 60421
+    },
+    {
+      "type": 2,
+      "pos": [
+        2170,
+        20
+      ],
+      "id": "D",
+      "z_level": "0",
+      "mapping": [
+        3721,
+        0,
+        372,
+        373
+      ],
+      "code": 60420
+    },
+    {
+      "type": 2,
+      "pos": [
+        1075,
+        600
+      ],
+      "id": "S1",
+      "z_level": "0",
+      "mapping": [
+        2607,
+        0,
+        372,
+        373
+      ],
+      "code": 60416
+    },
+    {
+      "type": 2,
+      "pos": [
+        1415,
+        435
+      ],
+      "id": "S2",
+      "z_level": "0",
+      "mapping": [
+        2979,
+        0,
+        372,
+        373
+      ],
+      "code": 60417
+    },
+    {
+      "type": 6,
+      "pos": [
+        1790,
+        395
+      ],
+      "id": "T",
+      "z_level": "0",
+      "mapping": [
+        3351,
+        0,
+        372,
+        373
+      ],
+      "code": 60421,
+      "direction": 3,
+      "trigger_mode": true,
+      "side": 0
+    },
+    {
+      "type": 6,
+      "pos": [
+        2170,
+        405
+      ],
+      "id": "P",
+      "z_level": "0",
+      "mapping": [
+        4095,
+        0,
+        372,
+        373
+      ],
+      "code": 60999,
+      "direction": 4,
+      "trigger_mode": true,
+      "side": 1
+    }
+  ]
+}
