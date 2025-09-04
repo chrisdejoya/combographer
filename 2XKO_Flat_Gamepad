@@ -1,0 +1,793 @@
+body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }
+
+.fight-stick .x {
+top: 75px;
+left: 325px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/L.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/L.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .y {
+top: 75px;
+left: 475px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/M.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/M.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .a {
+top: 225px;
+left: 630px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/T.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/T.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .b {
+top: 75px;
+left: 625px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/H.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/H.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .bumper.right {
+top: 75px;
+left: 775px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/D.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/D.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .bumper.left {
+top: 225px;
+left: 780px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/P.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/P.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .trigger-button.right {
+top: 225px;
+left: 480px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S2.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S2.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .trigger-button.left {
+top: 225px;
+left: 330px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S1.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 150px;
+height: 150px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S1.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .face.left {
+top: 210px;
+left: 125px;
+background: rgb(51, 51, 51) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Left.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 150px;
+height: 150px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Left.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .face.down {
+top: 210px;
+left: 285px;
+background: rgb(51, 51, 51) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Down.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 150px;
+height: 150px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Down.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .face.right {
+top: 290px;
+left: 425px;
+background: rgb(51, 51, 51) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Right.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 150px;
+height: 150px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Right.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .face.up {
+top: 520px;
+left: 500px;
+background: rgb(51, 51, 51) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Up.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 150px;
+height: 150px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Up.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .start {
+top: 120px;
+left: 484px;
+background: rgb(51, 51, 51) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/Start2pxBorder.png") no-repeat scroll 50% 50% / 80px padding-box border-box;
+visibility: hidden;
+width: 100px;
+height: 100px;
+border: 6.25px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/Start2pxBorder.png");
+background-size: 80px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .back {
+top: 120px;
+left: 380px;
+background: rgb(51, 51, 51) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/Back2pxBorder.png") no-repeat scroll 50% 50% / 80px padding-box border-box;
+visibility: hidden;
+width: 100px;
+height: 100px;
+border: 6.25px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/Back2pxBorder.png");
+background-size: 80px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .stick.left {
+top: 475px;
+left: 295px;
+background: rgb(51, 51, 51) none no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 150px;
+height: 150px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: none;
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffffFF;
+--text-font-size: 83px;
+--text-stroke-color: #000000;
+--text-stroke-width: 2px;
+--text-content: "LS";
+--text-font-family: "Arial";
+}
+
+.fight-stick .stick.right {
+top: 475px;
+left: 705px;
+background: rgb(51, 51, 51) none no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 150px;
+height: 150px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: none;
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffffFF;
+--text-font-size: 83px;
+--text-stroke-color: #000000;
+--text-stroke-width: 2px;
+--text-content: "RS";
+--text-font-family: "Arial";
+}
+
+.fight-stick .x.pressed {
+top: 75px;
+left: 325px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/L.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/L.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .y.pressed {
+top: 75px;
+left: 475px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/M.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/M.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .a.pressed {
+top: 225px;
+left: 630px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/T.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/T.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .b.pressed {
+top: 75px;
+left: 625px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/H.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/H.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .bumper.right.pressed {
+top: 75px;
+left: 775px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/D.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/D.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .bumper.left.pressed {
+top: 225px;
+left: 780px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/P.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/P.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .trigger-button.right.pressed {
+top: 225px;
+left: 480px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S2.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S2.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .trigger-button.left.pressed {
+top: 225px;
+left: 330px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S1.png?raw=true.png") repeat scroll 0% 100% / cover padding-box border-box;
+visibility: visible;
+width: 160px;
+height: 160px;
+border: 0px solid rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 100%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/S1.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 100%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: "";
+--text-font-size: "";
+--text-stroke-color: "";
+--text-stroke-width: "";
+--text-content: "";
+--text-font-family: Helvetica Neue LT Pro;
+}
+
+.fight-stick .face.left.pressed {
+top: 210px;
+left: 125px;
+background: rgb(255, 255, 255) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Left.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 160px;
+height: 160px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Left.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .face.down.pressed {
+top: 210px;
+left: 285px;
+background: rgb(255, 255, 255) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Down.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 160px;
+height: 160px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Down.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .face.right.pressed {
+top: 290px;
+left: 425px;
+background: rgb(255, 255, 255) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Right.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 160px;
+height: 160px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Right.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .face.up.pressed {
+top: 520px;
+left: 500px;
+background: rgb(255, 255, 255) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Up.png") no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 160px;
+height: 160px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/2XKO/2025/Arrow%20Icons/White%20Basic/Arrow%20Up.png");
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .start.pressed {
+top: 120px;
+left: 484px;
+background: rgb(255, 255, 255) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/StartBlack.png") no-repeat scroll 50% 50% / 80px padding-box border-box;
+visibility: hidden;
+width: 100px;
+height: 100px;
+border: 6.25px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/StartBlack.png");
+background-size: 80px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .back.pressed {
+top: 120px;
+left: 380px;
+background: rgb(255, 255, 255) url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/BackBlack.png") no-repeat scroll 50% 50% / 80px padding-box border-box;
+visibility: hidden;
+width: 100px;
+height: 100px;
+border: 6.25px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: url("https://raw.githubusercontent.com/KurtMage/KurtMage.github.io/main/images/Console%20controllers/xbox/icons/white2PxBorder/BackBlack.png");
+background-size: 80px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #ffffff;
+--text-font-size: 62px;
+--text-stroke-color: #000000;
+--text-stroke-width: 4px;
+--text-content: "";
+--text-font-family: "Helvetica Neue LT Pro";
+}
+
+.fight-stick .stick.left.pressed {
+top: 475px;
+left: 295px;
+background: rgb(255, 255, 255) none no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 160px;
+height: 160px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: none;
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #000000FF;
+--text-font-size: 83px;
+--text-stroke-color: #000000;
+--text-stroke-width: 2px;
+--text-content: "LS";
+--text-font-family: "Arial";
+}
+
+.fight-stick .stick.right.pressed {
+top: 475px;
+left: 705px;
+background: rgb(255, 255, 255) none no-repeat scroll 50% 50% / 175px padding-box border-box;
+visibility: hidden;
+width: 150px;
+height: 150px;
+border: 10px solid rgb(0, 0, 0);
+border-radius: 100%;
+background-position-y: 50%;
+background-image: none;
+background-size: 175px;
+background-repeat: no-repeat;
+background-image: 50% 50%;
+border-radius: 100%;
+border-color: rgb(0, 0, 0);
+--text-color: #000000FF;
+--text-font-size: 83px;
+--text-stroke-color: #000000;
+--text-stroke-width: 2px;
+--text-content: "RS";
+--text-font-family: "Arial";
+}
+
+.fight-stick .fstick {
+top: 30px;
+left: 10px;
+background: rgba(0, 0, 0, 0) url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/2XKO_Dpad.png?raw=true.png") repeat scroll 0% 0% / cover padding-box border-box;
+visibility: visible;
+width: 250px;
+height: 250px;
+border: 0px none rgb(51, 51, 51);
+border-radius: 0px;
+background-position-y: 0%;
+background-image: url("https://github.com/chrisdejoya/2XKO-Overlay/blob/main/Buttons/2XKO_Dpad.png?raw=true.png");
+background-size: cover;
+background-repeat: repeat;
+background-image: 0% 0%;
+border-radius: 0px;
+border-color: rgb(51, 51, 51);
+--text-color: ;
+--text-font-size: ;
+--text-stroke-color: ;
+--text-stroke-width: ;
+--text-content: ;
+--text-font-family: ;
+}
