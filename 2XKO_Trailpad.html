@@ -4,19 +4,17 @@
 <meta charset="UTF-8">
 <title>2XKO Overlay</title>
 <style>
-  body {
+  html, body {
+    width: 100%;
+    height: 100%;
     margin: 0;
     background: transparent;
-    font-family: sans-serif;
-    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   #app {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 10px;
-    transform: scale(1.2);
+    transform: scale(1);
   }
   canvas {
     width: 200px;
@@ -209,11 +207,12 @@
   ];
 
   function getClosestDirection(x, y) {
+    const mag = Math.hypot(x, y);
+    if (mag < 0.25) return -1; // 🔹 threshold for "no input"
+  
     let best = -1, bestDot = -Infinity;
     for (let i = 0; i < directions.length; i++) {
       const d = directions[i];
-      const mag = Math.hypot(x, y);
-      if (mag === 0) return -1;
       const dot = (x * d.x + y * d.y) / mag / Math.hypot(d.x, d.y);
       if (dot > bestDot) {
         bestDot = dot;
