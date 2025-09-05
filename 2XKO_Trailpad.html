@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>2XKO Overlay</title>
+
 <style>
 html, body {
   width: 100%;
@@ -17,15 +18,15 @@ html, body {
 
 #app {
   display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 #stickWrapper {
-  width: 300px;
-  height: 300px;
-  position: relative;
-  background: rgba(0,0,0,0.25);
+  width: 220px;
+  height: 220px;
+  position: absolute;
+  top: 220px;
+  left: 30px;
+  background: rgba(0,0,0,0.8);
   border-radius: 50%;
 }
 
@@ -36,10 +37,23 @@ html, body {
   background: transparent;
 }
 
+#joystickHead {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: rgba(215,215,215,1);
+  border-radius: 50%;
+  border: 10px solid #000;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  /* box-shadow: 0 0 10px rgba(255,255,255,1.0); */
+  transition: left 0.01s, top 0.01s;
+}
+
 #directionMarkers {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -47,67 +61,51 @@ html, body {
 
 .marker {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.6);
+  background: rgba(125,125,125,1.0);
   transform: translate(-50%, -50%);
-  transition: all 0.05s;
+  transition: all 0.1s;
 }
 
 .marker.active {
   background: rgba(255,255,255,1);
-  width: 30px;
-  height: 30px;
-}
-
-#joystickHead {
-  position: absolute;
-  width: 20%;
-  height: 20%;
-  background: rgba(255,255,255,1);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  box-shadow: 0 0 10px rgba(255,255,255,0.5);
-  transition: left 0.02s, top 0.02s;
+  width: 20px;
+  height: 20px;
 }
 
 .controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
 }
 
 .buttons {
-  display: grid;
-  grid-template-columns: repeat(4, 80px);
-  grid-template-rows: repeat(3, 80px);
-  gap: 10px;
+  position: relative;
+  width: 300px;
+  height: 300px;
 }
 
 .btn {
-  width: 80px;
-  height: 80px;
-  background: rgba(255,255,255,1);
+  position: absolute;
+  width: 90px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 36px;
   text-transform: uppercase;
   transition: 0.05s;
   border-radius: 50%;
-  border: 3px solid #333;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  border: 10px solid #000;
+  background: rgba(180,180,180,1.0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
   font-family: 'Swiss 721', Arial, sans-serif;
 }
 
 .btn.active {
-  background: rgba(128,128,128,1);
-  transform: scale(1.1);
+  background: rgba(255,255,255,1);
+  transform: scale(1.05);
 }
+
 </style>
 </head>
 <body>
@@ -129,18 +127,18 @@ html, body {
 
   <div class="controls">
     <div class="buttons" id="buttonGrid">
-      <div class="btn A">A</div>
-      <div class="btn B">B</div>
-      <div class="btn X">X</div>
-      <div class="btn Y">Y</div>
-      <div class="btn LB">LB</div>
-      <div class="btn RB">RB</div>
-      <div class="btn LT">LT</div>
-      <div class="btn RT">RT</div>
-      <div class="btn LS">LS</div>
-      <div class="btn RS">RS</div>
-      <div class="btn View">View</div>
-      <div class="btn Menu">Menu</div>
+      <div class="btn" data-btn="A" style="top: 240px; left: 240px;">T</div>
+      <div class="btn" data-btn="B" style="top: 120px; left: 240px;">H</div>
+      <div class="btn" data-btn="X" style="top: 120px; left: 0px;">L</div>
+      <div class="btn" data-btn="Y" style="top: 120px; left: 120px;">M</div>
+      <div class="btn" data-btn="LB" style="top: 240px; left: 360px;">P</div>
+      <div class="btn" data-btn="RB" style="top: 120px; left: 360px;">D</div>
+      <div class="btn" data-btn="LT" style="top: 240px; left: 0px;">S1</div>
+      <div class="btn" data-btn="RT" style="top: 240px; left: 120px;">S2</div>
+      <div class="btn" data-btn="LS" style="top: 0px; left: 0px;">TH</div>
+      <div class="btn" data-btn="RS" style="top: 0px; left: 360px;">TA</div>
+      <div class="btn" data-btn="View" style="top: 0px; left: 120px;">-</div>
+      <div class="btn" data-btn="Menu" style="top: 0px; left: 240px;">+</div>
     </div>
   </div>
 </div>
@@ -148,7 +146,7 @@ html, body {
 <script>
 const cfg = {
   deadzone: 0.1,
-  trail: 12,
+  trail: 8,
   invertY: false,
   map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11}
 };
@@ -160,7 +158,7 @@ window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
 // Map buttons using trimmed textContent for reliable activation
 const btnEls = {};
 document.querySelectorAll('.btn').forEach(btn => {
-  const key = btn.textContent.trim();
+  const key = btn.dataset.btn;
   btnEls[key] = btn;
 });
 
@@ -172,6 +170,7 @@ function updateButtons(pad) {
   if (!pad || !pad.buttons) return;
   for (const key in btnEls) {
     const idx = cfg.map[key];
+    if (idx === undefined) continue;
     const pressed = !!(pad.buttons[idx]?.pressed);
     btnEls[key].classList.toggle('active', pressed);
   }
@@ -207,7 +206,7 @@ function getStickXY(pad){
 
 // --- Trail smoothing ---
 let smooth = {x:0,y:0};
-const SMOOTH = 0.9;
+const SMOOTH = 0.95;
 function getSmoothedXY(pad){
   const t = getStickXY(pad);
   smooth.x += (t.x - smooth.x)*SMOOTH;
@@ -272,11 +271,11 @@ function drawTrail(x,y){
     ctx.beginPath();
     ctx.moveTo(cx+p0.x*canvasRadius, cy+p0.y*canvasRadius);
     ctx.lineTo(cx+p1.x*canvasRadius, cy+p1.y*canvasRadius);
-    ctx.lineWidth = 5*t;
+    ctx.lineWidth = 10*t;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
-    ctx.shadowBlur=5;
-    ctx.shadowColor='rgba(255,255,255,0.2)';
+    ctx.strokeStyle = 'rgba(255,255,255,1.0)';
+    ctx.shadowBlur=10;
+    ctx.shadowColor='rgba(255,255,255,0.5)';
     ctx.stroke();
     ctx.shadowBlur=0;
   }
