@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>2XKO Overlay</title>
+<title>2XKO Overlay (Xbox Layout)</title>
 <style>
   html, body {
     width: 100%;
@@ -27,11 +27,22 @@
     align-items: center;
     gap: 8px;
   }
+
+  /* Button Grid Layout */
   .buttons {
     display: grid;
-    grid-template-columns: repeat(4, 60px);
-    grid-gap: 8px;
+    grid-template-areas:
+      "lb rb lt rt view menu"
+      ".  y  .  .   .   ."
+      "x  .  b  .   .   ."
+      ".  a  .  .   .   ."
+      "ls .  rs .  .   .";
+    grid-template-columns: repeat(6, 60px);
+    grid-template-rows: repeat(5, 60px);
+    gap: 8px;
+    justify-content: center;
   }
+
   .btn {
     width: 60px;
     height: 60px;
@@ -54,6 +65,20 @@
     cursor: pointer;
     user-select: none;
   }
+
+  /* Assign grid areas */
+  .lb   { grid-area: lb; }
+  .rb   { grid-area: rb; }
+  .lt   { grid-area: lt; }
+  .rt   { grid-area: rt; }
+  .view { grid-area: view; }
+  .menu { grid-area: menu; }
+  .x    { grid-area: x; }
+  .y    { grid-area: y; }
+  .a    { grid-area: a; }
+  .b    { grid-area: b; }
+  .ls   { grid-area: ls; }
+  .rs   { grid-area: rs; }
 </style>
 </head>
 <body>
@@ -62,18 +87,18 @@
   <div class="controls">
     <label class="toggle"><input type="checkbox" id="toggleBtns" checked> Show Buttons</label>
     <div class="buttons" id="buttonGrid">
-      <div class="btn l">L</div>
-      <div class="btn m">M</div>
-      <div class="btn h">H</div>
-      <div class="btn tag">Tag</div>
-      <div class="btn parry">Parry</div>
-      <div class="btn dash">Dash</div>
-      <div class="btn s1">S1</div>
-      <div class="btn s2">S2</div>
-      <div class="btn l3">L3</div>
-      <div class="btn r3">R3</div>
-      <div class="btn select">Select</div>
-      <div class="btn start">Start</div>
+      <div class="btn lb">LB</div>
+      <div class="btn rb">RB</div>
+      <div class="btn lt">LT</div>
+      <div class="btn rt">RT</div>
+      <div class="btn view">View</div>
+      <div class="btn menu">Menu</div>
+      <div class="btn x">X</div>
+      <div class="btn y">Y</div>
+      <div class="btn a">A</div>
+      <div class="btn b">B</div>
+      <div class="btn ls">LS</div>
+      <div class="btn rs">RS</div>
     </div>
   </div>
 </div>
@@ -82,21 +107,21 @@
   const cfg = {
     deadzone: 0.14,
     trail: 24,
-    stickSource: 'both', // left stick + dpad
+    stickSource: 'both',
     invertY: false,
     map: {
-      L: 0,   // X
-      M: 3,   // Y
-      H: 1,   // B
-      Tag: 2, // A
-      Parry: 4, // LB
-      Dash: 5,  // RB
-      S1: 6,    // LT
-      S2: 7,    // RT
-      L3: 10,   // LS click
-      R3: 11,   // RS click
-      Select: 8, // Back/View
-      Start: 9   // Menu/Options
+      X: 0,   // X
+      Y: 3,   // Y
+      B: 1,   // B
+      A: 2,   // A
+      LB: 4,  // LB
+      RB: 5,  // RB
+      LT: 6,  // LT
+      RT: 7,  // RT
+      LS: 10, // LS click
+      RS: 11, // RS click
+      View: 8, // Back/View
+      Menu: 9  // Menu/Options
     }
   };
 
@@ -110,18 +135,18 @@
   }
 
   const btnEls = {
-    L: document.querySelector('.btn.l'),
-    M: document.querySelector('.btn.m'),
-    H: document.querySelector('.btn.h'),
-    Tag: document.querySelector('.btn.tag'),
-    Parry: document.querySelector('.btn.parry'),
-    Dash: document.querySelector('.btn.dash'),
-    S1: document.querySelector('.btn.s1'),
-    S2: document.querySelector('.btn.s2'),
-    L3: document.querySelector('.btn.l3'),
-    R3: document.querySelector('.btn.r3'),
-    Select: document.querySelector('.btn.select'),
-    Start: document.querySelector('.btn.start')
+    X: document.querySelector('.btn.x'),
+    Y: document.querySelector('.btn.y'),
+    B: document.querySelector('.btn.b'),
+    A: document.querySelector('.btn.a'),
+    LB: document.querySelector('.btn.lb'),
+    RB: document.querySelector('.btn.rb'),
+    LT: document.querySelector('.btn.lt'),
+    RT: document.querySelector('.btn.rt'),
+    LS: document.querySelector('.btn.ls'),
+    RS: document.querySelector('.btn.rs'),
+    View: document.querySelector('.btn.view'),
+    Menu: document.querySelector('.btn.menu')
   };
 
   function updateButtons(pad) {
@@ -133,7 +158,6 @@
     }
   }
 
-  // Toggle button visibility
   document.getElementById('toggleBtns').addEventListener('change', e => {
     document.getElementById('buttonGrid').style.display = e.target.checked ? 'grid' : 'none';
   });
@@ -183,7 +207,6 @@
     return {x, y};
   }
 
-  // Smoothing
   let smooth = {x:0, y:0};
   const SMOOTHING = 0.5;
 
@@ -194,7 +217,6 @@
     return clampCircle(smooth.x, smooth.y);
   }
 
-  // Direction markers (8-way)
   const directions = [
     {x: 0, y: -1},
     {x: 1, y: -1},
@@ -208,8 +230,7 @@
 
   function getClosestDirection(x, y) {
     const mag = Math.hypot(x, y);
-    if (mag < 0.25) return -1; // 🔹 threshold for "no input"
-  
+    if (mag < 0.25) return -1;
     let best = -1, bestDot = -Infinity;
     for (let i = 0; i < directions.length; i++) {
       const d = directions[i];
@@ -239,14 +260,12 @@
     ctx.save();
     ctx.translate(cx, cy);
 
-    // gate
     ctx.strokeStyle = 'rgba(255,255,255,1.0)';
     ctx.lineWidth = 6 * DPR;
     ctx.beginPath();
     ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.stroke();
 
-    // direction markers
     const activeDir = getClosestDirection(x, y);
     const markerRadius = 10 * DPR;
     directions.forEach((d, i) => {
@@ -259,7 +278,6 @@
       ctx.fill();
     });
 
-    // trail
     if (trail.length > 1) {
       for (let i = 1; i < trail.length; i++) {
         const p0 = trail[i - 1], p1 = trail[i];
@@ -274,7 +292,6 @@
       }
     }
 
-    // stick dot
     ctx.beginPath();
     ctx.fillStyle = 'rgba(120,170,255,0.95)';
     ctx.arc(x * r, y * r, radius, 0, Math.PI * 2);
