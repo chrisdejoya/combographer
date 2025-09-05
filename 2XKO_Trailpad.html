@@ -2,283 +2,310 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Xbox Overlay</title>
+<title>2XKO Overlay</title>
 <style>
-  html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  #app {
-    transform: scale(1);
-  }
-  canvas {
-    width: 1000px;
-    height: 800px;
-    background: transparent;
-  }
-  .controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-  .buttons {
-    display: grid; /* 🔹 no fixed grid rules, customize in your own CSS */
-    gap: 8px;
-  }
-  .btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    text-transform: uppercase;
-    transition: 0.1s;
-  }
-  .btn.active {
-    background: rgba(128,128,128,1.0);
-    box-shadow: 0 0 10px rgba(0,0,0,0.8);
-    transform: scale(1.05);
-  }
-  .toggle {
-    font-size: 14px;
-    cursor: pointer;
-    user-select: none;
-  }
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Swiss 721', Arial, sans-serif;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#stickWrapper {
+  width: 300px;
+  height: 300px;
+  position: relative;
+  background: rgba(0,0,0,0.25);
+  border-radius: 50%;
+}
+
+#stickCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+}
+
+#directionMarkers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  transform: translate(-50%, -50%);
+  transition: all 0.05s;
+}
+
+.marker.active {
+  background: rgba(255,255,255,1);
+  width: 30px;
+  height: 30px;
+}
+
+#joystickHead {
+  position: absolute;
+  width: 20%;
+  height: 20%;
+  background: rgba(255,255,255,1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+  transition: left 0.02s, top 0.02s;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 80px);
+  grid-template-rows: repeat(3, 80px);
+  gap: 10px;
+}
+
+.btn {
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  text-transform: uppercase;
+  transition: 0.05s;
+  border-radius: 50%;
+  border: 3px solid #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  font-family: 'Swiss 721', Arial, sans-serif;
+}
+
+.btn.active {
+  background: rgba(128,128,128,1);
+  transform: scale(1.1);
+}
 </style>
 </head>
 <body>
 <div id="app">
-  <canvas id="stick"></canvas>
+  <div id="stickWrapper">
+    <canvas id="stickCanvas"></canvas>
+    <div id="directionMarkers">
+      <div class="marker" id="marker0"></div>
+      <div class="marker" id="marker1"></div>
+      <div class="marker" id="marker2"></div>
+      <div class="marker" id="marker3"></div>
+      <div class="marker" id="marker4"></div>
+      <div class="marker" id="marker5"></div>
+      <div class="marker" id="marker6"></div>
+      <div class="marker" id="marker7"></div>
+    </div>
+    <div id="joystickHead"></div>
+  </div>
+
   <div class="controls">
-    <label class="toggle"><input type="checkbox" id="toggleBtns" checked> Show Buttons</label>
     <div class="buttons" id="buttonGrid">
-      <div class="btn a">A</div>
-      <div class="btn b">B</div>
-      <div class="btn x">X</div>
-      <div class="btn y">Y</div>
-      <div class="btn lb">LB</div>
-      <div class="btn rb">RB</div>
-      <div class="btn lt">LT</div>
-      <div class="btn rt">RT</div>
-      <div class="btn ls">LS</div>
-      <div class="btn rs">RS</div>
-      <div class="btn view">View</div>
-      <div class="btn menu">Menu</div>
+      <div class="btn A">A</div>
+      <div class="btn B">B</div>
+      <div class="btn X">X</div>
+      <div class="btn Y">Y</div>
+      <div class="btn LB">LB</div>
+      <div class="btn RB">RB</div>
+      <div class="btn LT">LT</div>
+      <div class="btn RT">RT</div>
+      <div class="btn LS">LS</div>
+      <div class="btn RS">RS</div>
+      <div class="btn View">View</div>
+      <div class="btn Menu">Menu</div>
     </div>
   </div>
 </div>
 
 <script>
-  const cfg = {
-    deadzone: 0.14,
-    trail: 24,
-    stickSource: 'both',
-    invertY: false,
-    map: {
-      A: 0,
-      B: 1,
-      X: 2,
-      Y: 3,
-      LB: 4,
-      RB: 5,
-      LT: 6,
-      RT: 7,
-      View: 8,
-      Menu: 9,
-      LS: 10,
-      RS: 11
-    }
-  };
+const cfg = {
+  deadzone: 0.1,
+  trail: 12,
+  invertY: false,
+  map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11}
+};
 
-  let gamepadIndex = null;
-  window.addEventListener('gamepadconnected', e => { gamepadIndex = e.gamepad.index; });
-  window.addEventListener('gamepaddisconnected', () => { gamepadIndex = null; });
+let gamepadIndex = null;
+window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
+window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
 
-  function getPad() {
-    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-    return pads && pads[gamepadIndex ?? 0];
+// Map buttons using trimmed textContent for reliable activation
+const btnEls = {};
+document.querySelectorAll('.btn').forEach(btn => {
+  const key = btn.textContent.trim();
+  btnEls[key] = btn;
+});
+
+function getPad() { 
+  return navigator.getGamepads()[gamepadIndex ?? 0]; 
+}
+
+function updateButtons(pad) {
+  if (!pad || !pad.buttons) return;
+  for (const key in btnEls) {
+    const idx = cfg.map[key];
+    const pressed = !!(pad.buttons[idx]?.pressed);
+    btnEls[key].classList.toggle('active', pressed);
   }
+}
 
-  const btnEls = {
-    A: document.querySelector('.btn.a'),
-    B: document.querySelector('.btn.b'),
-    X: document.querySelector('.btn.x'),
-    Y: document.querySelector('.btn.y'),
-    LB: document.querySelector('.btn.lb'),
-    RB: document.querySelector('.btn.rb'),
-    LT: document.querySelector('.btn.lt'),
-    RT: document.querySelector('.btn.rt'),
-    LS: document.querySelector('.btn.ls'),
-    RS: document.querySelector('.btn.rs'),
-    View: document.querySelector('.btn.view'),
-    Menu: document.querySelector('.btn.menu')
-  };
+// --- Joystick math ---
+function radialDeadzone(x,y,dz){
+  const mag = Math.hypot(x,y);
+  if(mag < dz) return {x:0, y:0};
+  const s = (mag-dz)/(1-dz);
+  const n = s/mag;
+  return {x: x*n, y: y*n};
+}
 
-  function updateButtons(pad) {
-    if (!pad || !pad.buttons) return;
-    for (const key of Object.keys(btnEls)) {
-      const idx = cfg.map[key];
-      const pressed = !!(pad.buttons?.[idx]?.pressed);
-      if (btnEls[key]) btnEls[key].classList.toggle('active', pressed);
-    }
+function clampCircle(x,y){
+  const mag = Math.hypot(x,y);
+  if(mag>1) return {x:x/mag, y:y/mag};
+  return {x,y};
+}
+
+function getStickXY(pad){
+  if(!pad) return {x:0,y:0};
+  let {x,y} = radialDeadzone(pad.axes[0]||0, pad.axes[1]||0, cfg.deadzone);
+  const up = pad.buttons[12]?.pressed?1:0;
+  const down = pad.buttons[13]?.pressed?1:0;
+  const left = pad.buttons[14]?.pressed?1:0;
+  const right = pad.buttons[15]?.pressed?1:0;
+  x += right-left;
+  y += down-up;
+  if(cfg.invertY) y*=-1;
+  return clampCircle(x,y);
+}
+
+// --- Trail smoothing ---
+let smooth = {x:0,y:0};
+const SMOOTH = 0.9;
+function getSmoothedXY(pad){
+  const t = getStickXY(pad);
+  smooth.x += (t.x - smooth.x)*SMOOTH;
+  smooth.y += (t.y - smooth.y)*SMOOTH;
+  return clampCircle(smooth.x,smooth.y);
+}
+
+// --- Direction markers ---
+const directions = [{x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}];
+const normDirs = directions.map(d => {
+  const mag = Math.hypot(d.x,d.y);
+  return {x:d.x/mag, y:d.y/mag};
+});
+const markers = [];
+for(let i=0;i<8;i++) markers.push(document.getElementById('marker'+i));
+
+function getClosestDirection(x,y){
+  const mag = Math.hypot(x,y);
+  if(mag<0.25) return -1;
+  let best=-1, bestDot=-Infinity;
+  for(let i=0;i<normDirs.length;i++){
+    const d = normDirs[i];
+    const dot = (x*d.x + y*d.y)/mag;
+    if(dot>bestDot){ bestDot = dot; best = i; }
   }
+  return best;
+}
 
-  // Toggle button visibility
-  document.getElementById('toggleBtns').addEventListener('change', e => {
-    document.getElementById('buttonGrid').style.display = e.target.checked ? 'grid' : 'none';
-  });
-
-  const canvas = document.getElementById('stick');
-  const ctx = canvas.getContext('2d');
-  const DPR = window.devicePixelRatio || 1;
-  function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * DPR;
-    canvas.height = rect.height * DPR;
+function updateMarkers(activeDir){
+  for(let i=0;i<normDirs.length;i++){
+    const d = normDirs[i];
+    const px = 50 + d.x*45;
+    const py = 50 + d.y*45;
+    markers[i].style.left = px + '%';
+    markers[i].style.top = py + '%';
+    markers[i].classList.toggle('active', i===activeDir);
   }
-  resizeCanvas();
-  addEventListener('resize', resizeCanvas);
+}
 
-  const trail = [];
+// --- Canvas trail ---
+const canvas = document.getElementById('stickCanvas');
+const ctx = canvas.getContext('2d');
+let canvasRadius = 0;
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  canvasRadius = Math.min(rect.width, rect.height)/2 - 10;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-  function radialDeadzone(x, y, dz) {
-    const mag = Math.hypot(x, y);
-    if (mag < dz) return {x: 0, y: 0};
-    const s = (mag - dz) / (1 - dz);
-    const n = s / (mag || 1);
-    return { x: x * n, y: y * n };
-  }
-
-  function getStickXY(pad) {
-    if (!pad) return {x:0, y:0};
-    let x = 0, y = 0;
-    const ls = radialDeadzone(pad.axes?.[0] || 0, pad.axes?.[1] || 0, cfg.deadzone);
-    x += ls.x; y += ls.y;
-    const up = pad.buttons?.[12]?.pressed ? 1 : 0;
-    const down = pad.buttons?.[13]?.pressed ? 1 : 0;
-    const left = pad.buttons?.[14]?.pressed ? 1 : 0;
-    const right = pad.buttons?.[15]?.pressed ? 1 : 0;
-    x += (right - left);
-    y += (down - up);
-    if (cfg.invertY) y *= -1;
-    return clampCircle(x, y);
-  }
-
-  function clampCircle(x, y) {
-    const mag = Math.hypot(x, y);
-    if (mag > 1) {
-      x /= mag;
-      y /= mag;
-    }
-    return {x, y};
-  }
-
-  let smooth = {x:0, y:0};
-  const SMOOTHING = 0.5;
-
-  function getSmoothedXY(pad) {
-    const target = getStickXY(pad);
-    smooth.x += (target.x - smooth.x) * SMOOTHING;
-    smooth.y += (target.y - smooth.y) * SMOOTHING;
-    return clampCircle(smooth.x, smooth.y);
-  }
-
-  const directions = [
-    {x: 0, y: -1},
-    {x: 1, y: -1},
-    {x: 1, y: 0},
-    {x: 1, y: 1},
-    {x: 0, y: 1},
-    {x: -1, y: 1},
-    {x: -1, y: 0},
-    {x: -1, y: -1},
-  ];
-
-  function getClosestDirection(x, y) {
-    const mag = Math.hypot(x, y);
-    if (mag < 0.25) return -1;
-    let best = -1, bestDot = -Infinity;
-    for (let i = 0; i < directions.length; i++) {
-      const d = directions[i];
-      const dot = (x * d.x + y * d.y) / mag / Math.hypot(d.x, d.y);
-      if (dot > bestDot) {
-        bestDot = dot;
-        best = i;
-      }
-    }
-    return best;
-  }
-
-  function drawStick() {
-    const w = canvas.width, h = canvas.height;
-    const pad = getPad();
-    const {x, y} = getSmoothedXY(pad);
-
-    trail.push({ x, y });
-    while (trail.length > cfg.trail) trail.shift();
-
-    ctx.clearRect(0, 0, w, h);
-
-    const r = Math.min(w, h) / 2 - 10;
-    const cx = w / 2, cy = h / 2;
-    const radius = 8 * DPR;
-
-    ctx.save();
-    ctx.translate(cx, cy);
-
-    ctx.strokeStyle = 'rgba(255,255,255,1.0)';
-    ctx.lineWidth = 6 * DPR;
+const trail = [];
+function drawTrail(x,y){
+  trail.push({x,y});
+  if(trail.length>cfg.trail) trail.shift();
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const cx=canvas.width/2, cy=canvas.height/2;
+  for(let i=1;i<trail.length;i++){
+    const p0=trail[i-1], p1=trail[i];
+    const t=i/trail.length;
     ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.moveTo(cx+p0.x*canvasRadius, cy+p0.y*canvasRadius);
+    ctx.lineTo(cx+p1.x*canvasRadius, cy+p1.y*canvasRadius);
+    ctx.lineWidth = 5*t;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.shadowBlur=5;
+    ctx.shadowColor='rgba(255,255,255,0.2)';
     ctx.stroke();
-
-    const activeDir = getClosestDirection(x, y);
-    const markerRadius = 10 * DPR;
-    directions.forEach((d, i) => {
-      const norm = Math.hypot(d.x, d.y);
-      const mx = (d.x / norm) * r;
-      const my = (d.y / norm) * r;
-      ctx.beginPath();
-      ctx.arc(mx, my, markerRadius, 0, Math.PI * 2);
-      ctx.fillStyle = (i === activeDir) ? 'rgba(120,170,255,0.95)' : 'rgba(255,255,255,0.2)';
-      ctx.fill();
-    });
-
-    if (trail.length > 1) {
-      for (let i = 1; i < trail.length; i++) {
-        const p0 = trail[i - 1], p1 = trail[i];
-        const t = i / trail.length;
-        ctx.beginPath();
-        ctx.moveTo(p0.x * r, p0.y * r);
-        ctx.lineTo(p1.x * r, p1.y * r);
-        ctx.lineWidth = (8 * DPR) * t;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = 'rgba(120,170,255,0.9)';
-        ctx.stroke();
-      }
-    }
-
-    ctx.beginPath();
-    ctx.fillStyle = 'rgba(120,170,255,0.95)';
-    ctx.arc(x * r, y * r, radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-
-    updateButtons(pad);
-    requestAnimationFrame(drawStick);
+    ctx.shadowBlur=0;
   }
+}
 
-  requestAnimationFrame(drawStick);
+// --- Joystick head ---
+const joystick = document.getElementById('joystickHead');
+function updateJoystickHead(x,y){
+  const px = 50 + x*45;
+  const py = 50 + y*45;
+  joystick.style.left = px + '%';
+  joystick.style.top = py + '%';
+}
+
+// --- Main loop ---
+function loop(){
+  const pad = getPad();
+  const sm = getSmoothedXY(pad);
+  drawTrail(sm.x, sm.y);
+
+  const {x,y} = getStickXY(pad);
+  updateJoystickHead(x,y);
+  updateButtons(pad);
+  updateMarkers(getClosestDirection(x,y));
+
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
