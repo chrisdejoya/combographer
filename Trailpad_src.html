@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>2XKO Overlay</title>
+
+<style>
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Swiss 721', Arial, sans-serif;
+}
+
+#app {
+  display: flex;
+}
+
+#stickWrapper {
+  width: 220px;
+  height: 220px;
+  position: absolute;
+  top: 220px;
+  left: 60px;
+  background: rgba(0,0,0,0.8);
+  border-radius: 50%;
+}
+
+#stickCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+}
+
+#joystickHead {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: rgba(215,215,215,1);
+  border-radius: 50%;
+  border: 10px solid #000;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #000;
+  font-size: 30px;
+  transition: left 0.01s, top 0.01s, transform 0.1s;
+}
+
+#directionMarkers {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(125,125,125,1.0);
+  transform: translate(-50%, -50%);
+  transition: all 0.1s;
+}
+
+.marker.active {
+  background: rgba(255,255,255,1);
+  width: 20px;
+  height: 20px;
+}
+
+.controls {
+}
+
+.buttons {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.btn {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  text-transform: uppercase;
+  transition: 0.05s;
+  border-radius: 50%;
+  border: 10px solid #000;
+  background: rgba(180,180,180,1.0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  font-family: 'Swiss 721', Arial, sans-serif;
+}
+
+.btn.active {
+  background: rgba(255,255,255,1);
+  transform: scale(1.05);
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stickWrapper">
+    <canvas id="stickCanvas"></canvas>
+    <div id="directionMarkers">
+      <div class="marker" id="marker0"></div>
+      <div class="marker" id="marker1"></div>
+      <div class="marker" id="marker2"></div>
+      <div class="marker" id="marker3"></div>
+      <div class="marker" id="marker4"></div>
+      <div class="marker" id="marker5"></div>
+      <div class="marker" id="marker6"></div>
+      <div class="marker" id="marker7"></div>
+    </div>
+    <div id="joystickHead"></div>
+  </div>
+
+  <div class="controls">
+    <div class="buttons" id="buttonGrid">
+      <div class="btn" data-btn="A" style="top: 240px; left: 280px;">T</div>
+      <div class="btn" data-btn="B" style="top: 120px; left: 280px;">H</div>
+      <div class="btn" data-btn="X" style="top: 120px; left: 40px;">L</div>
+      <div class="btn" data-btn="Y" style="top: 120px; left: 160px;">M</div>
+      <div class="btn" data-btn="LB" style="top: 240px; left: 400px;">P</div>
+      <div class="btn" data-btn="RB" style="top: 120px; left: 400px;">D</div>
+      <div class="btn" data-btn="LT" style="top: 240px; left: 40px;">S1</div>
+      <div class="btn" data-btn="RT" style="top: 240px; left: 160px;">S2</div>
+      <div class="btn" data-btn="LS" style="top: 0px; left: -20px;">TH</div>
+      <div class="btn" data-btn="RS" style="top: 0px; left: 460px;">TA</div>
+      <div class="btn" data-btn="View" style="top: 0px; left: 100px;">-</div>
+      <div class="btn" data-btn="Menu" style="top: 0px; left: 340px;">+</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cfg = {
+  deadzone: 0.1,
+  trail: 8,
+  invertY: false,
+  map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11}
+};
+
+let gamepadIndex = null;
+window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
+window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
+
+const btnEls = {};
+document.querySelectorAll('.btn').forEach(btn => btnEls[btn.dataset.btn] = btn);
+
+const joystick = document.getElementById('joystickHead');
+const lastPressedTimes = {}; // Global tracker
+
+// Buttons to ignore for joystick head
+const ignoredButtonIds = new Set(['View', 'Menu', 'LS', 'RS']); 
+
+function updateButtons(pad) {
+  if (!pad || !pad.buttons) {
+    joystick.style.transform = 'translate(-50%, -50%) scale(1)';
+    joystick.textContent = '';
+    for (const key in btnEls) btnEls[key].classList.remove('active');
+    return;
+  }
+
+  // Update pressed states and timestamps
+  for (const key in btnEls) {
+    const idx = cfg.map[key];
+    if (idx === undefined) continue;
+
+    const pressed = !!(pad.buttons[idx]?.pressed);
+    btnEls[key].classList.toggle('active', pressed);
+
+    if (pressed) {
+      lastPressedTimes[key] = performance.now();
+    } else {
+      if (!lastPressedTimes[key]) lastPressedTimes[key] = 0;
+    }
+  }
+
+  // Pick the most recently pressed button still active AND NOT ignored
+  let activeBtn = null;
+  let latestTime = -1;
+  for (const key in lastPressedTimes) {
+    if (
+      btnEls[key].classList.contains('active') &&
+      !ignoredButtonIds.has(key) &&
+      lastPressedTimes[key] > latestTime
+    ) {
+      latestTime = lastPressedTimes[key];
+      activeBtn = key;
+    }
+  }
+
+  // Update joystick head
+  if (activeBtn) {
+    joystick.style.transform = 'translate(-50%, -50%) scale(1.3)';
+    joystick.textContent = btnEls[activeBtn].textContent;
+  } else {
+    joystick.style.transform = 'translate(-50%, -50%) scale(1)';
+    joystick.textContent = '';
+  }
+}
+
+// --- Joystick math ---
+function radialDeadzone(x,y,dz){
+  const mag = Math.hypot(x,y);
+  if(mag < dz) return {x:0, y:0};
+  const s = (mag-dz)/(1-dz);
+  const n = s/mag;
+  return {x: x*n, y: y*n};
+}
+
+function clampCircle(x,y){
+  const mag = Math.hypot(x,y);
+  if(mag>1) return {x:x/mag, y:y/mag};
+  return {x,y};
+}
+
+function getStickXY(pad){
+  if(!pad) return {x:0,y:0};
+  let {x,y} = radialDeadzone(pad.axes[0]||0, pad.axes[1]||0, cfg.deadzone);
+  const up = pad.buttons[12]?.pressed?1:0;
+  const down = pad.buttons[13]?.pressed?1:0;
+  const left = pad.buttons[14]?.pressed?1:0;
+  const right = pad.buttons[15]?.pressed?1:0;
+  x += right-left;
+  y += down-up;
+  if(cfg.invertY) y*=-1;
+  return clampCircle(x,y);
+}
+
+let smooth = {x:0,y:0};
+const SMOOTH = 0.95;
+function getSmoothedXY(pad){
+  const t = getStickXY(pad);
+  smooth.x += (t.x - smooth.x)*SMOOTH;
+  smooth.y += (t.y - smooth.y)*SMOOTH;
+  return clampCircle(smooth.x,smooth.y);
+}
+
+// --- Direction markers ---
+const directions = [{x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}];
+const normDirs = directions.map(d => {
+  const mag = Math.hypot(d.x,d.y);
+  return {x:d.x/mag, y:d.y/mag};
+});
+const markers = [];
+for(let i=0;i<8;i++) markers.push(document.getElementById('marker'+i));
+
+function getClosestDirection(x,y){
+  const mag = Math.hypot(x,y);
+  if(mag<0.25) return -1;
+  let best=-1, bestDot=-Infinity;
+  for(let i=0;i<normDirs.length;i++){
+    const d = normDirs[i];
+    const dot = (x*d.x + y*d.y)/mag;
+    if(dot>bestDot){ bestDot = dot; best = i; }
+  }
+  return best;
+}
+
+function updateMarkers(activeDir){
+  for(let i=0;i<normDirs.length;i++){
+    const d = normDirs[i];
+    const px = 50 + d.x*45;
+    const py = 50 + d.y*45;
+    markers[i].style.left = px + '%';
+    markers[i].style.top = py + '%';
+    markers[i].classList.toggle('active', i===activeDir);
+  }
+}
+
+// --- Canvas trail ---
+const canvas = document.getElementById('stickCanvas');
+const ctx = canvas.getContext('2d');
+let canvasRadius = 0;
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  canvasRadius = Math.min(rect.width, rect.height)/2 - 10;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const trail = [];
+function drawTrail(x,y){
+  trail.push({x,y});
+  if(trail.length>cfg.trail) trail.shift();
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const cx=canvas.width/2, cy=canvas.height/2;
+  for(let i=1;i<trail.length;i++){
+    const p0=trail[i-1], p1=trail[i];
+    const t=i/trail.length;
+    ctx.beginPath();
+    ctx.moveTo(cx+p0.x*canvasRadius, cy+p0.y*canvasRadius);
+    ctx.lineTo(cx+p1.x*canvasRadius, cy+p1.y*canvasRadius);
+    ctx.lineWidth = 20*t;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,1.0)';
+    ctx.shadowBlur=0;
+    ctx.shadowColor='rgba(255,255,255,1.0)';
+    ctx.stroke();
+  }
+}
+
+// --- Joystick head position ---
+function updateJoystickHead(x,y){
+  const px = 50 + x*45;
+  const py = 50 + y*45;
+  joystick.style.left = px + '%';
+  joystick.style.top = py + '%';
+}
+
+// --- Main loop ---
+function loop(){
+  const pad = navigator.getGamepads()[gamepadIndex ?? 0];
+  const sm = getSmoothedXY(pad);
+  drawTrail(sm.x, sm.y);
+
+  const {x,y} = getStickXY(pad);
+  updateJoystickHead(x,y);
+  updateButtons(pad);
+  updateMarkers(getClosestDirection(x,y));
+
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
