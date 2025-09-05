@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>2XKO Overlay (Xbox Layout)</title>
+<title>Xbox Overlay</title>
 <style>
   html, body {
     width: 100%;
@@ -27,22 +27,10 @@
     align-items: center;
     gap: 8px;
   }
-
-  /* Button Grid Layout */
   .buttons {
-    display: grid;
-    grid-template-areas:
-      "lb rb lt rt view menu"
-      ".  y  .  .   .   ."
-      "x  .  b  .   .   ."
-      ".  a  .  .   .   ."
-      "ls .  rs .  .   .";
-    grid-template-columns: repeat(6, 60px);
-    grid-template-rows: repeat(5, 60px);
+    display: grid; /* 🔹 no fixed grid rules, customize in your own CSS */
     gap: 8px;
-    justify-content: center;
   }
-
   .btn {
     width: 60px;
     height: 60px;
@@ -65,20 +53,6 @@
     cursor: pointer;
     user-select: none;
   }
-
-  /* Assign grid areas */
-  .lb   { grid-area: lb; }
-  .rb   { grid-area: rb; }
-  .lt   { grid-area: lt; }
-  .rt   { grid-area: rt; }
-  .view { grid-area: view; }
-  .menu { grid-area: menu; }
-  .x    { grid-area: x; }
-  .y    { grid-area: y; }
-  .a    { grid-area: a; }
-  .b    { grid-area: b; }
-  .ls   { grid-area: ls; }
-  .rs   { grid-area: rs; }
 </style>
 </head>
 <body>
@@ -87,18 +61,18 @@
   <div class="controls">
     <label class="toggle"><input type="checkbox" id="toggleBtns" checked> Show Buttons</label>
     <div class="buttons" id="buttonGrid">
+      <div class="btn a">A</div>
+      <div class="btn b">B</div>
+      <div class="btn x">X</div>
+      <div class="btn y">Y</div>
       <div class="btn lb">LB</div>
       <div class="btn rb">RB</div>
       <div class="btn lt">LT</div>
       <div class="btn rt">RT</div>
-      <div class="btn view">View</div>
-      <div class="btn menu">Menu</div>
-      <div class="btn x">X</div>
-      <div class="btn y">Y</div>
-      <div class="btn a">A</div>
-      <div class="btn b">B</div>
       <div class="btn ls">LS</div>
       <div class="btn rs">RS</div>
+      <div class="btn view">View</div>
+      <div class="btn menu">Menu</div>
     </div>
   </div>
 </div>
@@ -110,18 +84,18 @@
     stickSource: 'both',
     invertY: false,
     map: {
-      X: 0,   // X
-      Y: 3,   // Y
-      B: 1,   // B
-      A: 2,   // A
-      LB: 4,  // LB
-      RB: 5,  // RB
-      LT: 6,  // LT
-      RT: 7,  // RT
-      LS: 10, // LS click
-      RS: 11, // RS click
-      View: 8, // Back/View
-      Menu: 9  // Menu/Options
+      A: 0,
+      B: 1,
+      X: 2,
+      Y: 3,
+      LB: 4,
+      RB: 5,
+      LT: 6,
+      RT: 7,
+      View: 8,
+      Menu: 9,
+      LS: 10,
+      RS: 11
     }
   };
 
@@ -135,10 +109,10 @@
   }
 
   const btnEls = {
+    A: document.querySelector('.btn.a'),
+    B: document.querySelector('.btn.b'),
     X: document.querySelector('.btn.x'),
     Y: document.querySelector('.btn.y'),
-    B: document.querySelector('.btn.b'),
-    A: document.querySelector('.btn.a'),
     LB: document.querySelector('.btn.lb'),
     RB: document.querySelector('.btn.rb'),
     LT: document.querySelector('.btn.lt'),
@@ -158,6 +132,7 @@
     }
   }
 
+  // Toggle button visibility
   document.getElementById('toggleBtns').addEventListener('change', e => {
     document.getElementById('buttonGrid').style.display = e.target.checked ? 'grid' : 'none';
   });
