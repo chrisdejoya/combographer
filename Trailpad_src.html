@@ -17,15 +17,20 @@
 
     #app {
       display: flex;
+      position: absolute;
+      top: 80px;
+      left: 30px;
     }
 
     #stickWrapper {
       width: 220px;
       height: 220px;
       position: absolute;
-      top: 300px;
-      left: 60px;
-      background: rgba(0,0,0,0.8);
+      top: -10px;
+      left: 0px;
+      background: rgba(0,0,0,0);
+      background-image: url('stickWrapper.svg');
+      background-size: contain;
       border-radius: 50%;
     }
 
@@ -34,23 +39,30 @@
       height: 100%;
       display: block;
       background: transparent;
+      z-index: 1;
     }
 
     #joystickHead {
       position: absolute;
-      width: 60px;
-      height: 60px;
+      left: 50%;
+      top: 50%;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      border: 10px solid #000;
+      outline: 4px solid rgba(255,255,255,0.3);
+      outline-offset: -4px;
+      box-shadow: 0px 0px 0px 5px rgba(0,0,0,1);
       transform: translate(-50%, -50%) scale(1);
       pointer-events: none;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 30px;
+      font-size: 20px;
       transition: left 0.01s, top 0.01s, transform 0.1s;
-      background: rgba(160,160,160,1);
+      background: rgba(128,128,128,1.0);
+      color: #000;
+      z-index: 3;
     }
 
     #directionMarkers {
@@ -60,6 +72,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
+      z-index: 2;
     }
 
     .marker {
@@ -74,38 +87,53 @@
 
     .marker.active {
       background: rgba(255,255,255,1);
-      width: 20px;
-      height: 20px;
-    }
-
-    .buttons {
-      position: relative;
-      width: 300px;
-      height: 300px;
+      width: 10px;
+      height: 10px;
     }
 
     .btn {
       position: absolute;
+      background: rgba(0,0,0,1);
       width: 90px;
       height: 90px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 40px;
+      font-size: 36px;
       text-transform: uppercase;
       transition: 0.05s;
       border-radius: 50%;
-      border: 10px solid #000;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      outline: 6px solid rgba(255,255,255,0.3);
+      outline-offset: -6px;
+      box-shadow: 0 2px 0px 6px rgba(0,0,0,1.0);
       font-family: 'Swiss 721', Arial, sans-serif;
-      filter: brightness(0.6);
+      filter: brightness(0.9);
       overflow: hidden;
       text-align: center;
       white-space: nowrap;
+      color: #000;
     }
 
+    /* Face buttons */
+    .btn[data-btn="A"]   { background:#C3E67E; top:110px; left:470px; }
+    .btn[data-btn="B"]   { background:#6C30BF; top:0px; left:470px; }
+    .btn[data-btn="X"]   { background:#B8ADD9; top:0px; left:250px; }
+    .btn[data-btn="Y"]   { background:#9C7ACC; top:0px; left:360px; }
+
+    /* Shoulder + Trigger */
+    .btn[data-btn="LB"]  { background:#3D6DCC; top:0px; left:580px; }
+    .btn[data-btn="RB"]  { background:#D98041; top:110px; left:580px; }
+    .btn[data-btn="LT"]  { background:#24AFDD; top:110px; left:250px;  }
+    .btn[data-btn="RT"]  { background:#CC5C5C; top:110px; left:360px; }
+
+    /* Sticks + System */
+    .btn[data-btn="LS"]   { background:#D9B64C; top: 210px; left:310px; width: 80px; height: 80px; }
+    .btn[data-btn="RS"]   { background:#7F47CC; top: 210px; left:530px; width: 80px; height: 80px; }
+    .btn[data-btn="View"] { background:#646464; top:-70px; left:310px; width: 80px; height: 40px; border-radius: 30px; }
+    .btn[data-btn="Menu"] { background:#646464; top:-70px; left:530px; width: 80px; height: 40px; border-radius: 30px; }
+
     .btn.active {
-      filter: brightness(1);
+      filter: brightness(1.5);
       transform: scale(1.05);
     }
   </style>
@@ -127,67 +155,40 @@
       <div id="joystickHead"></div>
     </div>
 
-    <div class="controls">
-      <div class="buttons" id="buttonGrid"></div>
-    </div>
+    <div class="btn" data-btn="A">T</div>
+    <div class="btn" data-btn="B">H</div>
+    <div class="btn" data-btn="X">L</div>
+    <div class="btn" data-btn="Y">M</div>
+
+    <div class="btn" data-btn="LB">P</div>
+    <div class="btn" data-btn="RB">D</div>
+    <div class="btn" data-btn="LT">S1</div>
+    <div class="btn" data-btn="RT">S2</div>
+
+    <div class="btn" data-btn="LS">L3</div>
+    <div class="btn" data-btn="RS">R3</div>
+    <div class="btn" data-btn="View">-</div>
+    <div class="btn" data-btn="Menu">+</div>
   </div>
 
   <script>
-    // --------------------------
-    // CONFIGURATION
-    // --------------------------
     const cfg = {
       deadzone: 0.1,
       trail: 15,
       invertY: false,
-      buttonStyle: {
-        borderColor: '#000',
-        activeColor: 'rgba(225,225,225,1)',
-        defaultColor: 'rgba(160,160,160,1)'
-      },
-      buttons: [
-        {id:'A', top:240, left:280, label:'T', color:'rgba(200,200,200,1)'},
-        {id:'B', top:120, left:280, label:'H', color:'rgba(200,200,200,1)'},
-        {id:'X', top:120, left:40,  label:'L', color:'rgba(200,200,200,1)'},
-        {id:'Y', top:120, left:160, label:'M', color:'rgba(200,200,200,1)'},
-        {id:'LB', top:240, left:400, label:'P', color:'rgba(200,200,200,1)'},
-        {id:'RB', top:120, left:400, label:'D', color:'rgba(200,200,200,1)'},
-        {id:'LT', top:240, left:40,  label:'S1', color:'rgba(200,200,200,1)'},
-        {id:'RT', top:240, left:160, label:'S2', color:'rgba(200,200,200,1)'},
-        {id:'LS', top:0, left:-20,   label:'L3', color:'rgba(120,120,120,1)'},
-        {id:'RS', top:0, left:460,   label:'R3', color:'rgba(120,120,120,1)'},
-        {id:'View', top:0, left:100, label:'-', color:'rgba(120,120,120,1)'},
-        {id:'Menu', top:0, left:340, label:'+', color:'rgba(120,120,120,1)'},
-      ],
       map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11},
-      ignoredForJoystick: ['View','Menu','LS','RS'],
-      hiddenButtons: []
+      ignoredForJoystick: ['View','Menu','LS','RS']
     };
 
-    // --------------------------
-    // BUTTON CREATION & TEXT SHRINK
-    // --------------------------
-    const buttonGrid = document.getElementById('buttonGrid');
+    // Collect manual button elements
     const btnEls = {};
-
-    cfg.buttons.forEach(b => {
-      if (cfg.hiddenButtons.includes(b.id)) return;
-      const btn = document.createElement('div');
-      btn.className = 'btn';
-      btn.dataset.btn = b.id;
-      btn.textContent = b.label;
-      btn.style.top = b.top + 'px';
-      btn.style.left = b.left + 'px';
-      btn.style.background = b.color || cfg.buttonStyle.defaultColor;
-      btn.style.borderColor = cfg.buttonStyle.borderColor;
-      buttonGrid.appendChild(btn);
-      btnEls[b.id] = btn;
+    document.querySelectorAll('.btn').forEach(el => {
+      btnEls[el.dataset.btn] = el;
     });
 
     function autoShrinkButtonText(btn) {
       const maxWidth = btn.clientWidth;
       btn.style.fontSize = "40px";
-
       requestAnimationFrame(() => {
         let fontSize = parseInt(window.getComputedStyle(btn).fontSize);
         while (btn.scrollWidth > maxWidth && fontSize > 8) {
@@ -196,18 +197,9 @@
         }
       });
     }
-
     Object.values(btnEls).forEach(autoShrinkButtonText);
 
-    function setButtonLabel(btn, label) {
-      btn.textContent = label;
-      btn.style.fontSize = "40px";
-      autoShrinkButtonText(btn);
-    }
-
-    // --------------------------
-    // GAMEPAD LOGIC
-    // --------------------------
+    // GAMEPAD HANDLING
     let gamepadIndex = null;
     window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
     window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
@@ -219,6 +211,8 @@
       if (!pad?.buttons) {
         joystick.style.transform = 'translate(-50%, -50%) scale(1)';
         joystick.textContent = '';
+        joystick.style.background = 'rgba(128,128,128,1)';
+        joystick.style.color = '#fff';
         Object.values(btnEls).forEach(btn => btn.classList.remove('active'));
         return;
       }
@@ -242,33 +236,32 @@
       }
 
       if (activeBtn) {
+        const btnColor = window.getComputedStyle(btnEls[activeBtn]).backgroundColor;
+        const btnTextColor = window.getComputedStyle(btnEls[activeBtn]).color;
         joystick.style.transform = 'translate(-50%, -50%) scale(1.3)';
         joystick.textContent = btnEls[activeBtn].textContent;
-        joystick.style.background = btnEls[activeBtn].style.background;
-        joystick.style.color = '#000';
+        joystick.style.background = btnColor;
+        joystick.style.color = btnTextColor;
       } else {
         joystick.style.transform = 'translate(-50%, -50%) scale(1)';
         joystick.textContent = '';
-        joystick.style.background = 'rgba(215,215,215,1)';
+        joystick.style.background = 'rgba(128,128,128,1)';
+        joystick.style.color = '#fff';
       }
     }
 
-    // --------------------------
-    // JOYSTICK MATH
-    // --------------------------
+    // --- joystick/trail logic unchanged ---
     function radialDeadzone(x, y, dz) {
       const mag = Math.hypot(x, y);
       if (mag < dz) return {x:0, y:0};
       const s = (mag - dz) / (1 - dz);
       return {x: x * s / mag, y: y * s / mag};
     }
-
     function clampCircle(x, y) {
       const mag = Math.hypot(x, y);
       if (mag > 1) return {x: x/mag, y: y/mag};
       return {x, y};
     }
-
     function getStickXY(pad) {
       if (!pad) return {x:0, y:0};
       let {x, y} = radialDeadzone(pad.axes[0]||0, pad.axes[1]||0, cfg.deadzone);
@@ -281,7 +274,6 @@
       if (cfg.invertY) y *= -1;
       return clampCircle(x, y);
     }
-
     let smooth = {x:0, y:0};
     const SMOOTH = 0.95;
     function getSmoothedXY(pad) {
@@ -290,22 +282,15 @@
       smooth.y += (t.y - smooth.y) * SMOOTH;
       return clampCircle(smooth.x, smooth.y);
     }
-
-    // --------------------------
-    // DIRECTION MARKERS
-    // --------------------------
     const directions = [
       {x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},
       {x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}
     ];
-
     const normDirs = directions.map(d => {
       const mag = Math.hypot(d.x,d.y);
       return {x: d.x/mag, y: d.y/mag};
     });
-
     const markers = Array.from({length:8}, (_,i) => document.getElementById('marker'+i));
-
     function getClosestDirection(x, y) {
       const mag = Math.hypot(x, y);
       if (mag < 0.25) return -1;
@@ -316,7 +301,6 @@
       });
       return best;
     }
-
     function updateMarkers(activeDir) {
       normDirs.forEach((d, i) => {
         markers[i].style.left = 50 + d.x*45 + '%';
@@ -324,68 +308,54 @@
         markers[i].classList.toggle('active', i === activeDir);
       });
     }
-
-    // --------------------------
-    // CANVAS TRAIL
-    // --------------------------
+    updateMarkers(-1);
     const canvas = document.getElementById('stickCanvas');
     const ctx = canvas.getContext('2d');
     let canvasRadius = 0;
-
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width;
       canvas.height = rect.height;
       canvasRadius = Math.min(rect.width, rect.height)/2 - 10;
     }
-
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-
     const trail = [];
     function drawTrail(x, y) {
       trail.push({x,y});
       if (trail.length > cfg.trail) trail.shift();
-
       ctx.clearRect(0,0,canvas.width,canvas.height);
       const cx = canvas.width/2, cy = canvas.height/2;
-
       for (let i=1; i<trail.length; i++) {
         const p0 = trail[i-1], p1 = trail[i];
         const t = i/trail.length;
         ctx.beginPath();
         ctx.moveTo(cx + p0.x*canvasRadius, cy + p0.y*canvasRadius);
         ctx.lineTo(cx + p1.x*canvasRadius, cy + p1.y*canvasRadius);
-        ctx.lineWidth = 20 * (t / t);
+        ctx.lineWidth = 10 * (t * 2);
         ctx.lineCap = 'round';
-        ctx.strokeStyle = 'rgba(200,200,200,1)';
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'rgba(128,128,128,1)';
+        ctx.strokeStyle = '#CEEC73';
         ctx.stroke();
       }
     }
-
     function updateJoystickHead(x, y) {
       joystick.style.left = 50 + x*45 + '%';
       joystick.style.top = 50 + y*45 + '%';
     }
-
-    // --------------------------
-    // MAIN LOOP
-    // --------------------------
     function loop() {
       const pad = navigator.getGamepads()[gamepadIndex ?? 0];
-      const sm = getSmoothedXY(pad);
-      drawTrail(sm.x, sm.y);
-
-      const {x, y} = getStickXY(pad);
-      updateJoystickHead(x, y);
-      updateButtons(pad);
-      updateMarkers(getClosestDirection(x, y));
-
+      if (pad) {
+        const sm = getSmoothedXY(pad);
+        drawTrail(sm.x, sm.y);
+        const {x, y} = getStickXY(pad);
+        updateJoystickHead(x, y);
+        updateButtons(pad);
+        updateMarkers(getClosestDirection(x, y));
+      } else {
+        updateButtons(null);
+      }
       requestAnimationFrame(loop);
     }
-
     requestAnimationFrame(loop);
   </script>
 </body>
