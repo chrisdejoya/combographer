@@ -1,466 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>2XKO Overlay</title>
-    <style>
-        @font-face {
-            font-family: "Swiss721";
-            src: url("fonts/Swiss721Black.ttf") format("truetype"),
-                 url("fonts/Swiss721BT-Black.woff2") format("woff2"),
-                 url("fonts/Swiss721BT-Black.woff") format("woff");
-            font-weight: normal;
-            font-style: normal;
-        }
+<meta charset="UTF-8" />
+<title>2XKO Overlay</title>
+<style>
+    @font-face {
+        font-family: "Swiss721";
+        src: url("fonts/Swiss721Black.ttf") format("truetype"),
+             url("fonts/Swiss721BT-Black.woff2") format("woff2"),
+             url("fonts/Swiss721BT-Black.woff") format("woff");
+        font-weight: normal;
+        font-style: normal;
+    }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            background: transparent;
-            font-family: "Swiss721", Arial, sans-serif;
-            text-transform: uppercase;
-            user-select: none;
-        }
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: transparent;
+        font-family: "Swiss721", Arial, sans-serif;
+        text-transform: uppercase;
+        user-select: none;
+    }
 
-        #app {
-            position: absolute;
-            top: 80px;
-            left: 30px;
-        }
+    #app { position: absolute; top: 80px; left: 30px; }
 
-        #stickWrapper {
-            width: 220px;
-            height: 220px;
-            position: absolute;
-            top: -10px;
-            left: 0px;
-            background: transparent;
-            background-image: url("stickWrapper.svg");
-            background-size: contain;
-            border-radius: 50%;
-        }
+    #stickWrapper {
+        width: 220px; height: 220px;
+        position: absolute; top: -10px; left: 0px;
+        background: transparent;
+        background-image: url("stickWrapper.svg");
+        background-size: contain;
+        border-radius: 50%;
+    }
 
-        #stickCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            background: transparent;
-            z-index: 1;
-        }
+    #stickCanvas {
+        width: 100%; height: 100%;
+        display: block;
+        background: transparent;
+        z-index: 1;
+    }
 
-        #joystickHead {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            outline: 4px solid rgba(255, 255, 255, 0.3);
-            outline-offset: -4px;
-            box-shadow: 0px 0px 0px 5px rgba(0, 0, 0, 1);
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 24px;
-            transition: left 0.01s, top 0.01s, transform 0.1s;
-            background: rgba(128, 128, 128, 1);
-            color: #000;
-            z-index: 3;
-        }
+    #joystickHead {
+        position: absolute; left: 50%; top: 50%;
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        outline: 4px solid rgba(255,255,255,0.3);
+        outline-offset: -4px;
+        box-shadow: 0px 0px 0px 5px rgba(0,0,0,1);
+        transform: translate(-50%,-50%) scale(1);
+        pointer-events: none;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold; font-size: 24px;
+        transition: left 0.01s, top 0.01s, transform 0.1s;
+        background: rgba(128,128,128,1); color: #000; z-index: 3;
+    }
 
-        #directionMarkers {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
+    #directionMarkers {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none; z-index: 2;
+    }
 
-        .marker {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(80, 80, 80, 1);
-            transform: translate(-50%, -50%);
-            transition: all 0.1s;
-        }
+    .marker {
+        position: absolute; width: 10px; height: 10px;
+        border-radius: 50%; background: rgba(80,80,80,1);
+        transform: translate(-50%, -50%);
+        transition: all 0.1s;
+    }
 
-        .marker.active {
-            background: rgba(255, 255, 255, 1);
-        }
+    .marker.active { background: rgba(255,255,255,1); }
 
-        .btn {
-            position: absolute;
-            background: rgba(0, 0, 0, 1);
-            width: 90px;
-            height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            transition: 0.05s;
-            border-radius: 50%;
-            outline: 6px solid rgba(255, 255, 255, 0.3);
-            outline-offset: -6px;
-            box-shadow: 0 2px 0px 6px rgba(0, 0, 0, 1);
-            filter: brightness(0.9);
-            overflow: hidden;
-            text-align: center;
-            white-space: nowrap;
-            color: #000;
-            cursor: pointer;
-        }
+    .btn {
+        position: absolute; background: rgba(0,0,0,1);
+        width: 90px; height: 90px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 36px; transition: 0.05s;
+        border-radius: 50%; outline: 6px solid rgba(255,255,255,0.3);
+        outline-offset: -6px; box-shadow: 0 2px 0px 6px rgba(0,0,0,1);
+        filter: brightness(0.9);
+        overflow: hidden; text-align: center; white-space: nowrap;
+        color: #000; cursor: pointer;
+    }
 
-        .btn[data-btn="A"] { background: #C3E67E; top: 110px; left: 470px; }
-        .btn[data-btn="B"] { background: #6C30BF; top: 0px; left: 470px; }
-        .btn[data-btn="X"] { background: #B8ADD9; top: 0px; left: 250px; }
-        .btn[data-btn="Y"] { background: #9C7ACC; top: 0px; left: 360px; }
+    .btn[data-btn="A"] { background: #C3E67E; top: 110px; left: 470px; }
+    .btn[data-btn="B"] { background: #6C30BF; top: 0px; left: 470px; }
+    .btn[data-btn="X"] { background: #B8ADD9; top: 0px; left: 250px; }
+    .btn[data-btn="Y"] { background: #9C7ACC; top: 0px; left: 360px; }
 
-        .btn[data-btn="LB"] { background: #3D6DCC; top: 110px; left: 580px; }
-        .btn[data-btn="RB"] { background: #D98041; top: 0px; left: 580px; }
-        .btn[data-btn="LT"] { background: #24AFDD; top: 110px; left: 250px; }
-        .btn[data-btn="RT"] { background: #CC5C5C; top: 110px; left: 360px; }
+    .btn[data-btn="LB"] { background: #3D6DCC; top: 110px; left: 580px; }
+    .btn[data-btn="RB"] { background: #D98041; top: 0px; left: 580px; }
+    .btn[data-btn="LT"] { background: #24AFDD; top: 110px; left: 250px; }
+    .btn[data-btn="RT"] { background: #CC5C5C; top: 110px; left: 360px; }
 
-        .btn[data-btn="LS"] { background: #D9B64C; top: 210px; left: 310px; width: 80px; height: 80px; }
-        .btn[data-btn="RS"] { background: #7F47CC; top: 210px; left: 530px; width: 80px; height: 80px; }
-        .btn[data-btn="View"] { background: #646464; top: -70px; left: 310px; width: 80px; height: 40px; border-radius: 30px; }
-        .btn[data-btn="Menu"] { background: #646464; top: -70px; left: 530px; width: 80px; height: 40px; border-radius: 30px; }
+    .btn[data-btn="LS"] { background: #D9B64C; top: 210px; left: 310px; width: 80px; height: 80px; }
+    .btn[data-btn="RS"] { background: #7F47CC; top: 210px; left: 530px; width: 80px; height: 80px; }
+    .btn[data-btn="View"] { background: #646464; top: -70px; left: 310px; width: 80px; height: 40px; border-radius: 30px; }
+    .btn[data-btn="Menu"] { background: #646464; top: -70px; left: 530px; width: 80px; height: 40px; border-radius: 30px; }
 
-        .btn.active { filter: brightness(1.5); transform: scale(1.05); }
-        .btn.selected { outline: 6px solid yellow; }
-
-        /* Stick highlight */
-        .stickHighlight.selected { outline: 6px solid yellow; border-radius: 50%; }
-    </style>
+    .btn.active { filter: brightness(1.5); transform: scale(1.05); }
+    .btn.selected { outline: 6px solid yellow; }
+    .stickHighlight.selected { outline: 6px solid yellow; border-radius: 50%; }
+</style>
 </head>
 <body>
-    <div id="app">
-        <div id="stickWrapper" class="stickHighlight">
-            <div id="directionMarkers">
-                <div class="marker" id="marker0"></div>
-                <div class="marker" id="marker1"></div>
-                <div class="marker" id="marker2"></div>
-                <div class="marker" id="marker3"></div>
-                <div class="marker" id="marker4"></div>
-                <div class="marker" id="marker5"></div>
-                <div class="marker" id="marker6"></div>
-                <div class="marker" id="marker7"></div>
-            </div>
-            <canvas id="stickCanvas"></canvas>
-            <div id="joystickHead"></div>
+<div id="app">
+    <div id="stickWrapper" class="stickHighlight">
+        <div id="directionMarkers">
+            <div class="marker" id="marker0"></div>
+            <div class="marker" id="marker1"></div>
+            <div class="marker" id="marker2"></div>
+            <div class="marker" id="marker3"></div>
+            <div class="marker" id="marker4"></div>
+            <div class="marker" id="marker5"></div>
+            <div class="marker" id="marker6"></div>
+            <div class="marker" id="marker7"></div>
         </div>
-
-        <div class="btn" data-btn="A">T</div>
-        <div class="btn" data-btn="B">H</div>
-        <div class="btn" data-btn="X">L</div>
-        <div class="btn" data-btn="Y">M</div>
-        <div class="btn" data-btn="LB">P</div>
-        <div class="btn" data-btn="RB">D</div>
-        <div class="btn" data-btn="LT">S1</div>
-        <div class="btn" data-btn="RT">S2</div>
-        <div class="btn" data-btn="LS">L3</div>
-        <div class="btn" data-btn="RS">R3</div>
-        <div class="btn" data-btn="View">-</div>
-        <div class="btn" data-btn="Menu">+</div>
+        <canvas id="stickCanvas"></canvas>
+        <div id="joystickHead"></div>
     </div>
 
-    <script>
-        const cfg = {
-            deadzone: 0.1,
-            trail: 15,
-            invertY: false,
-            map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11},
-            ignoredForJoystick: ['View','Menu','LS','RS']
-        };
+    <div class="btn" data-btn="A">T</div>
+    <div class="btn" data-btn="B">H</div>
+    <div class="btn" data-btn="X">L</div>
+    <div class="btn" data-btn="Y">M</div>
+    <div class="btn" data-btn="LB">P</div>
+    <div class="btn" data-btn="RB">D</div>
+    <div class="btn" data-btn="LT">S1</div>
+    <div class="btn" data-btn="RT">S2</div>
+    <div class="btn" data-btn="LS">L3</div>
+    <div class="btn" data-btn="RS">R3</div>
+    <div class="btn" data-btn="View">-</div>
+    <div class="btn" data-btn="Menu">+</div>
+</div>
 
-        const btnEls = {};
-        document.querySelectorAll('.btn').forEach(el => btnEls[el.dataset.btn] = el);
+<script>
+const cfg = {
+    deadzone: 0.1, trail: 15, invertY: false,
+    map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11},
+    ignoredForJoystick: ['View','Menu','LS','RS']
+};
 
-        const savedLabels = JSON.parse(localStorage.getItem("buttonLabels") || "{}");
-        for (const key in savedLabels) if (btnEls[key]) btnEls[key].textContent = savedLabels[key];
+const btnEls = {};
+document.querySelectorAll('.btn').forEach(el => btnEls[el.dataset.btn] = el);
 
-        const savedPositions = JSON.parse(localStorage.getItem("buttonPositions") || "{}");
-        for (const key in savedPositions) if (btnEls[key]) {
-            btnEls[key].style.top = savedPositions[key].top;
-            btnEls[key].style.left = savedPositions[key].left;
-        }
+// Restore labels
+const savedLabels = JSON.parse(localStorage.getItem("buttonLabels") || "{}");
+for (const key in savedLabels) if (btnEls[key]) btnEls[key].textContent = savedLabels[key];
 
-        // Editable labels
-        Object.values(btnEls).forEach(btn => {
-            btn.addEventListener("click", () => {
-                if (btn.querySelector("input")) return;
-                const oldText = btn.textContent.trim();
-                btn.textContent = "";
+// Restore positions
+const savedPositions = JSON.parse(localStorage.getItem("buttonPositions") || "{}");
+for (const key in savedPositions) if (btnEls[key]) {
+    btnEls[key].style.top = savedPositions[key].top;
+    btnEls[key].style.left = savedPositions[key].left;
+}
 
-                const input = document.createElement("input");
-                input.value = oldText;
-                input.style.width = "100%";
-                input.style.height = "100%";
-                input.style.fontSize = "36px";
-                input.style.fontFamily = "inherit";
-                input.style.textAlign = "center";
-                input.style.textTransform = "uppercase";
-                input.style.border = "none";
-                input.style.outline = "none";
-                input.style.background = "transparent";
-                input.style.color = "inherit";
-                input.style.padding = "0";
-                input.style.margin = "0";
+// Restore sizes
+const savedSizes = JSON.parse(localStorage.getItem("elementSizes") || "{}");
+const stickWrapper = document.getElementById('stickWrapper');
+const movableElements = {...btnEls, stickWrapper};
+for (const key in savedSizes) {
+    const el = movableElements[key];
+    if (el) {
+        el.style.width = savedSizes[key].width || el.style.width;
+        el.style.height = savedSizes[key].height || el.style.height;
+        el.style.borderRadius = savedSizes[key].borderRadius || el.style.borderRadius;
+        if (savedSizes[key].fontSize) el.style.fontSize = savedSizes[key].fontSize;
+    }
+}
 
-                btn.appendChild(input);
-                input.focus();
-                input.select();
+// Restore stickWrapper position
+const savedStickPos = JSON.parse(localStorage.getItem("stickWrapperPosition") || "{}");
+if (savedStickPos.top) stickWrapper.style.top = savedStickPos.top;
+if (savedStickPos.left) stickWrapper.style.left = savedStickPos.left;
 
-                input.addEventListener("blur", save);
-                input.addEventListener("keydown", e => {
-                    if (e.key === "Enter") save();
-                    else if (e.key === "Escape") btn.textContent = oldText;
-                });
-
-                function save() {
-                    const newText = input.value.trim() || oldText;
-                    btn.textContent = newText;
-                    savedLabels[btn.dataset.btn] = newText;
-                    localStorage.setItem("buttonLabels", JSON.stringify(savedLabels));
-                }
-            });
+// Editable labels
+Object.values(btnEls).forEach(btn => {
+    btn.addEventListener("click", () => {
+        if (btn.querySelector("input")) return;
+        const oldText = btn.textContent.trim();
+        btn.textContent = "";
+        const input = document.createElement("input");
+        input.value = oldText;
+        input.style.width = "100%";
+        input.style.height = "100%";
+        input.style.fontSize = btn.style.fontSize || "36px";
+        input.style.fontFamily = "inherit";
+        input.style.textAlign = "center";
+        input.style.textTransform = "uppercase";
+        input.style.border = "none";
+        input.style.outline = "none";
+        input.style.background = "transparent";
+        input.style.color = "inherit";
+        input.style.padding = "0"; input.style.margin = "0";
+        btn.appendChild(input);
+        input.focus(); input.select();
+        input.addEventListener("blur", save);
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter") save();
+            else if (e.key === "Escape") btn.textContent = oldText;
         });
+        function save() {
+            const newText = input.value.trim() || oldText;
+            btn.textContent = newText;
+            savedLabels[btn.dataset.btn] = newText;
+            localStorage.setItem("buttonLabels", JSON.stringify(savedLabels));
+        }
+    });
+});
 
-        // Unified movement system
-        const movableElements = {};
-        Object.values(btnEls).forEach(el => movableElements[el.dataset.btn] = el);
-        const stickWrapper = document.getElementById('stickWrapper');
-        movableElements['stickWrapper'] = stickWrapper;
+// Select & move elements
+let selectedElement = null;
+Object.values(movableElements).forEach(el => {
+    el.addEventListener('mousedown', e => {
+        if (selectedElement && selectedElement !== el) selectedElement.classList?.remove("selected");
+        selectedElement = el;
+        el.classList.add("selected");
+        e.stopPropagation();
+    });
+});
+document.addEventListener("mousedown", () => {
+    if (selectedElement) selectedElement.classList?.remove("selected");
+    selectedElement = null;
+});
 
-        let selectedElement = null;
+// Keyboard Controls: move, resize, border-radius, font-size
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+        localStorage.removeItem("buttonLabels");
+        localStorage.removeItem("buttonPositions");
+        localStorage.removeItem("stickWrapperPosition");
+        localStorage.removeItem("elementSizes");
+        location.reload();
+        return;
+    }
+    if (!selectedElement) return;
 
-        Object.values(movableElements).forEach(el => {
-            el.addEventListener('mousedown', e => {
-                if (selectedElement && selectedElement !== el) selectedElement.classList?.remove("selected");
-                selectedElement = el;
-                el.classList.add("selected");
-                e.stopPropagation();
-            });
-        });
+    const style = window.getComputedStyle(selectedElement);
+    let top = parseInt(style.top)||0, left = parseInt(style.left)||0;
+    let width = parseInt(style.width)||0, height = parseInt(style.height)||0;
+    let borderRadius = parseInt(style.borderRadius)||0;
+    let fontSize = parseInt(style.fontSize)||36;
+    let updated = false;
 
-        function snap10(val) { return Math.round(val / 10) * 10; }
+    function snap10(val){ return Math.round(val/10)*10; }
 
-        document.addEventListener("keydown", e => {
-            if (e.key === "Escape") {
-                localStorage.removeItem("buttonLabels");
-                localStorage.removeItem("buttonPositions");
-                localStorage.removeItem("stickWrapperPosition");
-                location.reload();
-                return;
-            }
-
-            if (!selectedElement) return;
-
-            const style = window.getComputedStyle(selectedElement);
-            let top = parseInt(style.top) || 0;
-            let left = parseInt(style.left) || 0;
-            let moved = false;
-
-            if (e.key === "ArrowUp") { top -= 10; moved = true; }
-            if (e.key === "ArrowDown") { top += 10; moved = true; }
-            if (e.key === "ArrowLeft") { left -= 10; moved = true; }
-            if (e.key === "ArrowRight") { left += 10; moved = true; }
-
-            if (moved) {
-                top = snap10(top);
-                left = snap10(left);
-                selectedElement.style.top = top + "px";
-                selectedElement.style.left = left + "px";
-
-                if (selectedElement.dataset?.btn) {
-                    savedPositions[selectedElement.dataset.btn] = {top: selectedElement.style.top, left: selectedElement.style.left};
-                    localStorage.setItem("buttonPositions", JSON.stringify(savedPositions));
-                } else if (selectedElement.id === "stickWrapper") {
-                    localStorage.setItem("stickWrapperPosition", JSON.stringify({top: selectedElement.style.top, left: selectedElement.style.left}));
-                }
-            }
-        });
-
-        document.addEventListener("mousedown", () => {
-            if (selectedElement) selectedElement.classList?.remove("selected");
-            selectedElement = null;
-        });
-
-        // Restore stickWrapper position
-        const savedStickPos = JSON.parse(localStorage.getItem("stickWrapperPosition") || "{}");
-        if (savedStickPos.top) stickWrapper.style.top = savedStickPos.top;
-        if (savedStickPos.left) stickWrapper.style.left = savedStickPos.left;
-
-        // ----- Gamepad & joystick logic (unchanged from your original code) -----
-        let gamepadIndex = null;
-        window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
-        window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
-
-        const joystick = document.getElementById('joystickHead');
-        const lastPressedTimes = {};
-
-        function updateButtons(pad) {
-            if (!pad?.buttons) {
-                joystick.style.transform = 'translate(-50%, -50%) scale(1)';
-                joystick.textContent = '';
-                joystick.style.background = 'rgba(128,128,128,1)';
-                joystick.style.color = '#fff';
-                Object.values(btnEls).forEach(btn => btn.classList.remove('active'));
-                return;
-            }
-
-            for (const key in btnEls) {
-                const idx = cfg.map[key];
-                if (idx === undefined) continue;
-                const pressed = !!pad.buttons[idx]?.pressed;
-                btnEls[key].classList.toggle('active', pressed);
-                lastPressedTimes[key] = pressed ? performance.now() : lastPressedTimes[key] || 0;
-            }
-
-            let activeBtn = null, latestTime = -1;
-            for (const key in lastPressedTimes) {
-                if (btnEls[key].classList.contains('active') &&
-                    !cfg.ignoredForJoystick.includes(key) &&
-                    lastPressedTimes[key] > latestTime) {
-                    latestTime = lastPressedTimes[key];
-                    activeBtn = key;
-                }
-            }
-
-            if (activeBtn) {
-                const btnColor = window.getComputedStyle(btnEls[activeBtn]).backgroundColor;
-                const btnTextColor = window.getComputedStyle(btnEls[activeBtn]).color;
-                joystick.style.transform = 'translate(-50%, -50%) scale(1.3)';
-                joystick.textContent = btnEls[activeBtn].textContent;
-                joystick.style.background = btnColor;
-                joystick.style.color = btnTextColor;
-            } else {
-                joystick.style.transform = 'translate(-50%, -50%) scale(1)';
-                joystick.textContent = '';
-                joystick.style.background = 'rgba(128,128,128,1)';
-                joystick.style.color = '#fff';
-            }
+    // Ctrl + [ / ] = font size
+    if (e.ctrlKey) {
+        if (e.key === "[") { fontSize = Math.max(8, fontSize-2); updated=true; e.preventDefault(); }
+        if (e.key === "]") { fontSize += 2; updated=true; e.preventDefault(); }
+        selectedElement.style.fontSize = fontSize + "px";
+    } else {
+        // Move
+        if (!e.shiftKey) {
+            if (e.key === "ArrowUp") { top -= 10; updated=true; }
+            if (e.key === "ArrowDown") { top += 10; updated=true; }
+            if (e.key === "ArrowLeft") { left -= 10; updated=true; }
+            if (e.key === "ArrowRight") { left += 10; updated=true; }
         }
 
-        function radialDeadzone(x, y, dz) {
-            const mag = Math.hypot(x, y);
-            if (mag < dz) return {x:0, y:0};
-            const s = (mag - dz) / (1 - dz);
-            return {x: x * s / mag, y: y * s / mag};
+        // Resize (shift)
+        if (e.shiftKey) {
+            if (e.key === "ArrowDown") { height -= 10; updated=true; }
+            if (e.key === "ArrowUp") { height += 10; updated=true; }
+            if (e.key === "ArrowLeft") { width -= 10; updated=true; }
+            if (e.key === "ArrowRight") { width += 10; updated=true; }
         }
 
-        function clampCircle(x, y) {
-            const mag = Math.hypot(x, y);
-            if (mag > 1) return {x: x/mag, y: y/mag};
-            return {x, y};
-        }
+        // Border-radius
+        if (e.key === "[") { borderRadius = Math.max(0,borderRadius-10); updated=true; }
+        if (e.key === "]") { borderRadius += 10; updated=true; }
+    }
 
-        function getStickXY(pad) {
-            if (!pad) return {x:0, y:0};
-            let {x, y} = radialDeadzone(pad.axes[0]||0, pad.axes[1]||0, cfg.deadzone);
-            const up = pad.buttons[12]?.pressed ? 1 : 0;
-            const down = pad.buttons[13]?.pressed ? 1 : 0;
-            const left = pad.buttons[14]?.pressed ? 1 : 0;
-            const right = pad.buttons[15]?.pressed ? 1 : 0;
-            x += right - left;
-            y += down - up;
-            if (cfg.invertY) y *= -1;
-            return clampCircle(x, y);
-        }
+    if (updated) {
+        selectedElement.style.top = snap10(top)+"px";
+        selectedElement.style.left = snap10(left)+"px";
+        selectedElement.style.width = snap10(width)+"px";
+        selectedElement.style.height = snap10(height)+"px";
+        selectedElement.style.borderRadius = snap10(borderRadius)+"px";
+        selectedElement.style.fontSize = fontSize + "px";
 
-        let smooth = {x:0, y:0};
-        const SMOOTH = 0.95;
-        function getSmoothedXY(pad) {
-            const t = getStickXY(pad);
-            smooth.x += (t.x - smooth.x) * SMOOTH;
-            smooth.y += (t.y - smooth.y) * SMOOTH;
-            return clampCircle(smooth.x, smooth.y);
+        // Save positions & sizes
+        const savedSizesLS = JSON.parse(localStorage.getItem("elementSizes")||"{}");
+        if (selectedElement.dataset?.btn) {
+            savedPositions[selectedElement.dataset.btn] = {top:selectedElement.style.top, left:selectedElement.style.left};
+            localStorage.setItem("buttonPositions", JSON.stringify(savedPositions));
+            savedSizesLS[selectedElement.dataset.btn] = {
+                width:selectedElement.style.width,
+                height:selectedElement.style.height,
+                borderRadius:selectedElement.style.borderRadius,
+                fontSize:selectedElement.style.fontSize
+            };
+        } else if (selectedElement.id==="stickWrapper") {
+            localStorage.setItem("stickWrapperPosition", JSON.stringify({top:selectedElement.style.top,left:selectedElement.style.left}));
+            savedSizesLS["stickWrapper"] = {
+                width:selectedElement.style.width,
+                height:selectedElement.style.height,
+                borderRadius:selectedElement.style.borderRadius
+            };
         }
+        localStorage.setItem("elementSizes", JSON.stringify(savedSizesLS));
+    }
+});
 
-        const directions = [
-            {x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},
-            {x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}
-        ];
-        const normDirs = directions.map(d => {
-            const mag = Math.hypot(d.x,d.y);
-            return {x: d.x/mag, y: d.y/mag};
-        });
-        const markers = Array.from({length:8}, (_,i) => document.getElementById('marker'+i));
-        function getClosestDirection(x, y) {
-            const mag = Math.hypot(x, y);
-            if (mag < 0.25) return -1;
-            let best = -1, bestDot = -Infinity;
-            normDirs.forEach((d,i) => {
-                const dot = (x*d.x + y*d.y)/mag;
-                if (dot > bestDot) { bestDot = dot; best = i; }
-            });
-            return best;
-        }
-        function updateMarkers(activeDir) {
-            normDirs.forEach((d, i) => {
-                markers[i].style.left = 50 + d.x*45 + '%';
-                markers[i].style.top = 50 + d.y*45 + '%';
-                markers[i].classList.toggle('active', i === activeDir);
-            });
-        }
-        updateMarkers(-1);
+// ----- Gamepad & joystick logic -----
+let gamepadIndex = null;
+window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
+window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
 
-        const canvas = document.getElementById('stickCanvas');
-        const ctx = canvas.getContext('2d');
-        let canvasRadius = 0;
-        function resizeCanvas() {
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            canvasRadius = Math.min(rect.width, rect.height)/2 - 10;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+const joystick = document.getElementById('joystickHead');
+const lastPressedTimes = {};
 
-        const trail = [];
-        function drawTrail(x, y) {
-            trail.push({x,y});
-            if (trail.length > cfg.trail) trail.shift();
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            const cx = canvas.width/2, cy = canvas.height/2;
-            for (let i=1; i<trail.length; i++) {
-                const p0 = trail[i-1], p1 = trail[i];
-                const t = i/trail.length;
-                ctx.beginPath();
-                ctx.moveTo(cx + p0.x*canvasRadius, cy + p0.y*canvasRadius);
-                ctx.lineTo(cx + p1.x*canvasRadius, cy + p1.y*canvasRadius);
-                ctx.lineWidth = 10 * (t * 2);
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#CEEC73';
-                ctx.stroke();
-            }
-            ctx.globalAlpha = 1;
-        }
+function updateButtons(pad){
+    if(!pad?.buttons){
+        joystick.style.transform='translate(-50%,-50%) scale(1)'; joystick.textContent='';
+        joystick.style.background='rgba(128,128,128,1)'; joystick.style.color='#fff';
+        Object.values(btnEls).forEach(btn=>btn.classList.remove('active'));
+        return;
+    }
 
-        function updateJoystick(pad) {
-            const {x,y} = getSmoothedXY(pad);
-            drawTrail(x,y);
-            const cx = canvas.width/2, cy = canvas.height/2;
-            joystick.style.left = (cx + x*canvasRadius) + 'px';
-            joystick.style.top = (cy + y*canvasRadius) + 'px';
-            const dir = getClosestDirection(x,y);
-            updateMarkers(dir);
-        }
+    for(const key in btnEls){
+        const idx=cfg.map[key];
+        if(idx===undefined) continue;
+        const pressed=!!pad.buttons[idx]?.pressed;
+        btnEls[key].classList.toggle('active',pressed);
+        lastPressedTimes[key]=pressed?performance.now():lastPressedTimes[key]||0;
+    }
 
-        function loop() {
-            const pad = gamepadIndex !== null ? navigator.getGamepads()[gamepadIndex] : null;
-            updateButtons(pad);
-            updateJoystick(pad);
-            requestAnimationFrame(loop);
+    let activeBtn=null,latestTime=-1;
+    for(const key in lastPressedTimes){
+        if(btnEls[key].classList.contains('active')&&!cfg.ignoredForJoystick.includes(key)
+           && lastPressedTimes[key]>latestTime){
+            latestTime=lastPressedTimes[key]; activeBtn=key;
         }
-        loop();
-    </script>
+    }
+
+    if(activeBtn){
+        const btnColor=window.getComputedStyle(btnEls[activeBtn]).backgroundColor;
+        const btnTextColor=window.getComputedStyle(btnEls[activeBtn]).color;
+        joystick.style.transform='translate(-50%,-50%) scale(1.3)';
+        joystick.textContent=btnEls[activeBtn].textContent;
+        joystick.style.background=btnColor;
+        joystick.style.color=btnTextColor;
+    } else {
+        joystick.style.transform='translate(-50%,-50%) scale(1)';
+        joystick.textContent=''; joystick.style.background='rgba(128,128,128,1)';
+        joystick.style.color='#fff';
+    }
+}
+
+function radialDeadzone(x,y,dz){
+    const mag=Math.hypot(x,y);
+    if(mag<dz) return {x:0,y:0};
+    const s=(mag-dz)/(1-dz);
+    return {x:x*s/mag,y:y*s/mag};
+}
+
+function clampCircle(x,y){
+    const mag=Math.hypot(x,y);
+    if(mag>1) return {x:x/mag,y:y/mag};
+    return {x,y};
+}
+
+function getStickXY(pad){
+    if(!pad) return {x:0,y:0};
+    let {x,y}=radialDeadzone(pad.axes[0]||0,pad.axes[1]||0,cfg.deadzone);
+    const up=pad.buttons[12]?.pressed?1:0;
+    const down=pad.buttons[13]?.pressed?1:0;
+    const left=pad.buttons[14]?.pressed?1:0;
+    const right=pad.buttons[15]?.pressed?1:0;
+    x+=right-left; y+=down-up;
+    if(cfg.invertY) y*=-1;
+    return clampCircle(x,y);
+}
+
+let smooth={x:0,y:0}; const SMOOTH=0.95;
+function getSmoothedXY(pad){
+    const t=getStickXY(pad);
+    smooth.x+=(t.x-smooth.x)*SMOOTH; smooth.y+=(t.y-smooth.y)*SMOOTH;
+    return clampCircle(smooth.x,smooth.y);
+}
+
+const directions=[{x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}];
+const normDirs=directions.map(d=>{const mag=Math.hypot(d.x,d.y);return {x:d.x/mag,y:d.y/mag};});
+const markers=Array.from({length:8},(_,i)=>document.getElementById('marker'+i));
+function getClosestDirection(x,y){
+    const mag=Math.hypot(x,y);
+    if(mag<0.25) return -1;
+    let best=-1,bestDot=-Infinity;
+    normDirs.forEach((d,i)=>{const dot=(x*d.x+y*d.y)/mag;if(dot>bestDot){bestDot=dot;best=i;}});
+    return best;
+}
+function updateMarkers(activeDir){
+    normDirs.forEach((d,i)=>{
+        markers[i].style.left=50+d.x*45+'%';
+        markers[i].style.top=50+d.y*45+'%';
+        markers[i].classList.toggle('active',i===activeDir);
+    });
+}
+updateMarkers(-1);
+
+const canvas=document.getElementById('stickCanvas'); const ctx=canvas.getContext('2d');
+let canvasRadius=0;
+function resizeCanvas(){
+    const rect=canvas.getBoundingClientRect();
+    canvas.width=rect.width; canvas.height=rect.height;
+    canvasRadius=Math.min(rect.width,rect.height)/2-10;
+}
+resizeCanvas(); window.addEventListener('resize',resizeCanvas);
+
+const trail=[]; 
+function drawTrail(x,y){
+    trail.push({x,y}); if(trail.length>cfg.trail) trail.shift();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const cx=canvas.width/2,cy=canvas.height/2;
+    for(let i=1;i<trail.length;i++){
+        const p0=trail[i-1],p1=trail[i]; const t=i/trail.length;
+        ctx.beginPath(); ctx.moveTo(cx+p0.x*canvasRadius,cy+p0.y*canvasRadius);
+        ctx.lineTo(cx+p1.x*canvasRadius,cy+p1.y*canvasRadius);
+        ctx.lineWidth=10*(t*2); ctx.lineCap='round'; ctx.strokeStyle='#CEEC73'; ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+}
+
+function updateJoystick(pad){
+    const {x,y}=getSmoothedXY(pad);
+    drawTrail(x,y);
+    const cx=canvas.width/2,cy=canvas.height/2;
+    joystick.style.left=(cx+x*canvasRadius)+'px';
+    joystick.style.top=(cy+y*canvasRadius)+'px';
+    const dir=getClosestDirection(x,y);
+    updateMarkers(dir);
+}
+
+function loop(){
+    const pad=gamepadIndex!==null?navigator.getGamepads()[gamepadIndex]:null;
+    updateButtons(pad); updateJoystick(pad);
+    requestAnimationFrame(loop);
+}
+loop();
+</script>
 </body>
 </html>
