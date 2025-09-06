@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>2XKO Overlay</title>
+<title>Trailpad Overlay</title>
 <style>
     @font-face {
         font-family: "Swiss721";
         src: url("fonts/Swiss721Black.ttf") format("truetype"),
              url("fonts/Swiss721BT-Black.woff2") format("woff2"),
              url("fonts/Swiss721BT-Black.woff") format("woff");
-        font-weight: normal;
+        font-weight: bold;
         font-style: normal;
     }
 
@@ -27,10 +27,10 @@
 
     #stickWrapper {
         width: 220px; height: 220px;
-        position: absolute; top: -10px; left: 0px;
+        position: absolute; top: 0px; left: 0px;
         background: transparent;
         background-image: url("stickWrapper.svg");
-        background-size: contain;
+        background-size: cover;
         border-radius: 50%;
     }
 
@@ -101,6 +101,10 @@
     .btn.active { filter: brightness(1.5); transform: scale(1.05); }
     .btn.selected { outline: 6px solid yellow; }
     .stickHighlight.selected { outline: 6px solid yellow; border-radius: 50%; }
+
+    :root {
+    --trail-color: #CEEC73; /* default trail color */
+    }
 </style>
 </head>
 <body>
@@ -414,11 +418,15 @@ function drawTrail(x,y){
     trail.push({x,y}); if(trail.length>cfg.trail) trail.shift();
     ctx.clearRect(0,0,canvas.width,canvas.height);
     const cx=canvas.width/2,cy=canvas.height/2;
+
+    const trailColor = getComputedStyle(document.documentElement)
+                         .getPropertyValue('--trail-color').trim() || '#CEEC73';
+
     for(let i=1;i<trail.length;i++){
         const p0=trail[i-1],p1=trail[i]; const t=i/trail.length;
         ctx.beginPath(); ctx.moveTo(cx+p0.x*canvasRadius,cy+p0.y*canvasRadius);
         ctx.lineTo(cx+p1.x*canvasRadius,cy+p1.y*canvasRadius);
-        ctx.lineWidth=10*(t*2); ctx.lineCap='round'; ctx.strokeStyle='#CEEC73'; ctx.stroke();
+        ctx.lineWidth=10*(t*2); ctx.lineCap='round'; ctx.strokeStyle=trailColor; ctx.stroke();
     }
     ctx.globalAlpha=1;
 }
