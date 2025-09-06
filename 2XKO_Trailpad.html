@@ -1,421 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>2XKO Overlay</title>
-  <style>
-    @font-face {
-      font-family: 'Swiss721';
-      src: url('fonts/Swiss721Black.ttf') format('truetype'),
-        url('fonts/Swiss721BT-Black.woff2') format('woff2'),
-        url('fonts/Swiss721BT-Black.woff') format('woff');
-      font-weight: normal;
-      font-style: normal;
-    }
-    
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      background: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Swiss721', Arial, sans-serif;
-      text-transform: uppercase;
-    }
+    <head>
+        <meta charset="UTF-8" />
+        <title>2XKO Overlay</title>
+        <style>
+            @font-face {
+                font-family: "Swiss721";
+                src: url("fonts/Swiss721Black.ttf") format("truetype"),
+                    url("fonts/Swiss721BT-Black.woff2") format("woff2"),
+                    url("fonts/Swiss721BT-Black.woff") format("woff");
+                font-weight: normal;
+                font-style: normal;
+            }
 
-    #app {
-      display: flex;
-      position: absolute;
-      top: 80px;
-      left: 30px;
-    }
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                background: transparent;
+                font-family: "Swiss721", Arial, sans-serif;
+                text-transform: uppercase;
+                user-select: none;
+            }
 
-    #stickWrapper {
-      width: 220px;
-      height: 220px;
-      position: absolute;
-      top: -10px;
-      left: 0px;
-      background: rgba(0,0,0,0);
-      background-image: url('stickWrapper.svg');
-      background-size: contain;
-      border-radius: 50%;
-    }
+            #app {
+                position: absolute;
+                top: 80px;
+                left: 30px;
+            }
 
-    #stickCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      background: transparent;
-      z-index: 1;
-    }
+            #stickWrapper {
+                width: 220px;
+                height: 220px;
+                position: absolute;
+                top: -10px;
+                left: 0px;
+                background: transparent;
+                background-image: url("stickWrapper.svg");
+                background-size: contain;
+                border-radius: 50%;
+            }
 
-    #joystickHead {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      outline: 4px solid rgba(255,255,255,0.3);
-      outline-offset: -4px;
-      box-shadow: 0px 0px 0px 5px rgba(0,0,0,1);
-      transform: translate(-50%, -50%) scale(1);
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 24px;
-      transition: left 0.01s, top 0.01s, transform 0.1s;
-      background: rgba(128,128,128,1.0);
-      color: #000;
-      z-index: 3;
-    }
+            #stickCanvas {
+                width: 100%;
+                height: 100%;
+                display: block;
+                background: transparent;
+                z-index: 1;
+            }
 
-    #directionMarkers {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 2;
-    }
+            #joystickHead {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                outline: 4px solid rgba(255, 255, 255, 0.3);
+                outline-offset: -4px;
+                box-shadow: 0px 0px 0px 5px rgba(0, 0, 0, 1);
+                transform: translate(-50%, -50%) scale(1);
+                pointer-events: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 24px;
+                transition: left 0.01s, top 0.01s, transform 0.1s;
+                background: rgba(128, 128, 128, 1);
+                color: #000;
+                z-index: 3;
+            }
 
-    .marker {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(80,80,80,1);
-      transform: translate(-50%, -50%);
-      transition: all 0.1s;
-    }
+            #directionMarkers {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 2;
+            }
 
-    .marker.active {
-      background: rgba(255,255,255,1);
-      width: 10px;
-      height: 10px;
-    }
+            .marker {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: rgba(80, 80, 80, 1);
+                transform: translate(-50%, -50%);
+                transition: all 0.1s;
+            }
 
-    .btn {
-      position: absolute;
-      background: rgba(0,0,0,1);
-      width: 90px;
-      height: 90px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      transition: 0.05s;
-      border-radius: 50%;
-      outline: 6px solid rgba(255,255,255,0.3);
-      outline-offset: -6px;
-      box-shadow: 0 2px 0px 6px rgba(0,0,0,1.0);      
-      filter: brightness(0.9);
-      overflow: hidden;
-      text-align: center;
-      white-space: nowrap;
-      color: #000;
-      cursor: pointer;
-      user-select: none;
-    }
+            .marker.active {
+                background: rgba(255, 255, 255, 1);
+            }
 
-    /* Face buttons */
-    .btn[data-btn="A"]   { background:#C3E67E; top:110px; left:470px; }
-    .btn[data-btn="B"]   { background:#6C30BF; top:0px; left:470px; }
-    .btn[data-btn="X"]   { background:#B8ADD9; top:0px; left:250px; }
-    .btn[data-btn="Y"]   { background:#9C7ACC; top:0px; left:360px; }
+            .btn {
+                position: absolute;
+                background: rgba(0, 0, 0, 1);
+                width: 90px;
+                height: 90px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 36px;
+                transition: 0.05s;
+                border-radius: 50%;
+                outline: 6px solid rgba(255, 255, 255, 0.3);
+                outline-offset: -6px;
+                box-shadow: 0 2px 0px 6px rgba(0, 0, 0, 1);
+                filter: brightness(0.9);
+                overflow: hidden;
+                text-align: center;
+                white-space: nowrap;
+                color: #000;
+                cursor: pointer;
+            }
 
-    /* Shoulder + Trigger */
-    .btn[data-btn="LB"]  { background:#3D6DCC; top:0px; left:580px; }
-    .btn[data-btn="RB"]  { background:#D98041; top:110px; left:580px; }
-    .btn[data-btn="LT"]  { background:#24AFDD; top:110px; left:250px;  }
-    .btn[data-btn="RT"]  { background:#CC5C5C; top:110px; left:360px; }
+            /* Face buttons */
+            .btn[data-btn="A"] {
+                background: #C3E67E;
+                top: 110px;
+                left: 470px;
+            }
+            .btn[data-btn="B"] {
+                background: #6C30BF;
+                top: 0px;
+                left: 470px;
+            }
+            .btn[data-btn="X"] {
+                background: #B8ADD9;
+                top: 0px;
+                left: 250px;
+            }
+            .btn[data-btn="Y"] {
+                background: #9C7ACC;
+                top: 0px;
+                left: 360px;
+            }
 
-    /* Sticks + System */
-    .btn[data-btn="LS"]   { background:#D9B64C; top: 210px; left:310px; width: 80px; height: 80px; }
-    .btn[data-btn="RS"]   { background:#7F47CC; top: 210px; left:530px; width: 80px; height: 80px; }
-    .btn[data-btn="View"] { background:#646464; top:-70px; left:310px; width: 80px; height: 40px; border-radius: 30px; }
-    .btn[data-btn="Menu"] { background:#646464; top:-70px; left:530px; width: 80px; height: 40px; border-radius: 30px; }
+            /* Shoulder + Trigger */
+            .btn[data-btn="LB"] {
+                background: #3D6DCC;
+                top: 0px;
+                left: 580px;
+            }
+            .btn[data-btn="RB"] {
+                background: #D98041;
+                top: 110px;
+                left: 580px;
+            }
+            .btn[data-btn="LT"] {
+                background: #24AFDD;
+                top: 110px;
+                left: 250px;
+            }
+            .btn[data-btn="RT"] {
+                background: #CC5C5C;
+                top: 110px;
+                left: 360px;
+            }
 
-    .btn.active {
-      filter: brightness(1.5);
-      transform: scale(1.05);
-    }
+            /* Sticks + System */
+            .btn[data-btn="LS"] {
+                background: #D9B64C;
+                top: 210px;
+                left: 310px;
+                width: 80px;
+                height: 80px;
+            }
+            .btn[data-btn="RS"] {
+                background: #7F47CC;
+                top: 210px;
+                left: 530px;
+                width: 80px;
+                height: 80px;
+            }
+            .btn[data-btn="View"] {
+                background: #646464;
+                top: -70px;
+                left: 310px;
+                width: 80px;
+                height: 40px;
+                border-radius: 30px;
+            }
+            .btn[data-btn="Menu"] {
+                background: #646464;
+                top: -70px;
+                left: 530px;
+                width: 80px;
+                height: 40px;
+                border-radius: 30px;
+            }
 
-    .btn input {
-      border: none;
-      background: transparent;
-      width: 100%;
-      height: 100%;
-      font: inherit;
-      text-align: center;
-      text-transform: uppercase;
-      color: inherit;
-      outline: none;
-    }
-  </style>
-</head>
-<body>
-  <div id="app">
-    <div id="stickWrapper">
-      <div id="directionMarkers">
-        <div class="marker" id="marker0"></div>
-        <div class="marker" id="marker1"></div>
-        <div class="marker" id="marker2"></div>
-        <div class="marker" id="marker3"></div>
-        <div class="marker" id="marker4"></div>
-        <div class="marker" id="marker5"></div>
-        <div class="marker" id="marker6"></div>
-        <div class="marker" id="marker7"></div>
-      </div>
-      <canvas id="stickCanvas"></canvas>
-      <div id="joystickHead"></div>
-    </div>
+            .btn.active {
+                filter: brightness(1.5);
+                transform: scale(1.05);
+            }
 
-    <div class="btn" data-btn="A">T</div>
-    <div class="btn" data-btn="B">H</div>
-    <div class="btn" data-btn="X">L</div>
-    <div class="btn" data-btn="Y">M</div>
+            .btn.selected {
+                outline: 6px solid yellow;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <div id="stickWrapper">
+                <div id="directionMarkers">
+                    <div class="marker" id="marker0"></div>
+                    <div class="marker" id="marker1"></div>
+                    <div class="marker" id="marker2"></div>
+                    <div class="marker" id="marker3"></div>
+                    <div class="marker" id="marker4"></div>
+                    <div class="marker" id="marker5"></div>
+                    <div class="marker" id="marker6"></div>
+                    <div class="marker" id="marker7"></div>
+                </div>
+                <canvas id="stickCanvas"></canvas>
+                <div id="joystickHead"></div>
+            </div>
 
-    <div class="btn" data-btn="LB">P</div>
-    <div class="btn" data-btn="RB">D</div>
-    <div class="btn" data-btn="LT">S1</div>
-    <div class="btn" data-btn="RT">S2</div>
+            <div class="btn" data-btn="A">T</div>
+            <div class="btn" data-btn="B">H</div>
+            <div class="btn" data-btn="X">L</div>
+            <div class="btn" data-btn="Y">M</div>
 
-    <div class="btn" data-btn="LS">L3</div>
-    <div class="btn" data-btn="RS">R3</div>
-    <div class="btn" data-btn="View">-</div>
-    <div class="btn" data-btn="Menu">+</div>
-  </div>
+            <div class="btn" data-btn="LB">P</div>
+            <div class="btn" data-btn="RB">D</div>
+            <div class="btn" data-btn="LT">S1</div>
+            <div class="btn" data-btn="RT">S2</div>
 
-  <script>
-    const cfg = {
-      deadzone: 0.1,
-      trail: 15,
-      invertY: false,
-      map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11},
-      ignoredForJoystick: ['View','Menu','LS','RS']
-    };
+            <div class="btn" data-btn="LS">L3</div>
+            <div class="btn" data-btn="RS">R3</div>
+            <div class="btn" data-btn="View">-</div>
+            <div class="btn" data-btn="Menu">+</div>
+        </div>
 
-    // Collect button elements
-    const btnEls = {};
-    document.querySelectorAll('.btn').forEach(el => {
-      btnEls[el.dataset.btn] = el;
-    });
+        <script>
+            const cfg = {
+              deadzone: 0.1,
+              trail: 15,
+              invertY: false,
+              map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11},
+              ignoredForJoystick: ['View','Menu','LS','RS']
+            };
 
-    // Restore saved labels
-    const savedLabels = JSON.parse(localStorage.getItem("buttonLabels") || "{}");
-    for (const key in savedLabels) {
-      if (btnEls[key]) btnEls[key].textContent = savedLabels[key];
-    }
+            const btnEls = {};
+            document.querySelectorAll('.btn').forEach(el => btnEls[el.dataset.btn] = el);
 
-    // Make labels editable
-    Object.values(btnEls).forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (btn.querySelector("input")) return; // already editing
-        const oldText = btn.textContent.trim();
-        btn.textContent = "";
-        const input = document.createElement("input");
-        input.value = oldText;
-        btn.appendChild(input);
-        input.focus();
-        input.select();
+            const savedLabels = JSON.parse(localStorage.getItem("buttonLabels") || "{}");
+            for (const key in savedLabels) if (btnEls[key]) btnEls[key].textContent = savedLabels[key];
 
-        input.addEventListener("blur", save);
-        input.addEventListener("keydown", e => {
-          if (e.key === "Enter") {
-            save();
-          } else if (e.key === "Escape") {
-            btn.textContent = oldText;
-          }
-        });
+            const savedPositions = JSON.parse(localStorage.getItem("buttonPositions") || "{}");
+            for (const key in savedPositions) if (btnEls[key]) {
+              btnEls[key].style.top = savedPositions[key].top;
+              btnEls[key].style.left = savedPositions[key].left;
+            }
 
-        function save() {
-          const newText = input.value.trim() || oldText;
-          btn.textContent = newText;
-          savedLabels[btn.dataset.btn] = newText;
-          localStorage.setItem("buttonLabels", JSON.stringify(savedLabels));
-          autoShrinkButtonText(btn);
-        }
-      });
-    });
+            // Editable labels
+            Object.values(btnEls).forEach(btn => {
+              btn.addEventListener("click", () => {
+                if (btn.querySelector("input")) return;
+                const oldText = btn.textContent.trim();
+                btn.textContent = "";
 
-    function autoShrinkButtonText(btn) {
-      const maxWidth = btn.clientWidth;
-      btn.style.fontSize = "40px";
-      requestAnimationFrame(() => {
-        let fontSize = parseInt(window.getComputedStyle(btn).fontSize);
-        while (btn.scrollWidth > maxWidth && fontSize > 8) {
-          fontSize--;
-          btn.style.fontSize = fontSize + "px";
-        }
-      });
-    }
-    Object.values(btnEls).forEach(autoShrinkButtonText);
+                const input = document.createElement("input");
+                input.value = oldText;
 
-    // GAMEPAD HANDLING
-    let gamepadIndex = null;
-    window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
-    window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
+                // Input styling to prevent glitches
+                input.style.width = "100%";
+                input.style.height = "100%";
+                input.style.fontSize = "36px";
+                input.style.fontFamily = "inherit";
+                input.style.textAlign = "center";
+                input.style.textTransform = "uppercase";
+                input.style.border = "none";
+                input.style.outline = "none";
+                input.style.background = "transparent";
+                input.style.color = "inherit";
+                input.style.padding = "0";
+                input.style.margin = "0";
 
-    const joystick = document.getElementById('joystickHead');
-    const lastPressedTimes = {};
+                btn.appendChild(input);
+                input.focus();
+                input.select();
 
-    function updateButtons(pad) {
-      if (!pad?.buttons) {
-        joystick.style.transform = 'translate(-50%, -50%) scale(1)';
-        joystick.textContent = '';
-        joystick.style.background = 'rgba(128,128,128,1)';
-        joystick.style.color = '#fff';
-        Object.values(btnEls).forEach(btn => btn.classList.remove('active'));
-        return;
-      }
+                input.addEventListener("blur", save);
+                input.addEventListener("keydown", e => {
+                  if (e.key === "Enter") save();
+                  else if (e.key === "Escape") btn.textContent = oldText;
+                });
 
-      for (const key in btnEls) {
-        const idx = cfg.map[key];
-        if (idx === undefined) continue;
-        const pressed = !!pad.buttons[idx]?.pressed;
-        btnEls[key].classList.toggle('active', pressed);
-        lastPressedTimes[key] = pressed ? performance.now() : lastPressedTimes[key] || 0;
-      }
+                function save() {
+                  const newText = input.value.trim() || oldText;
+                  btn.textContent = newText;
+                  savedLabels[btn.dataset.btn] = newText;
+                  localStorage.setItem("buttonLabels", JSON.stringify(savedLabels));
+                }
+              });
+            });
 
-      let activeBtn = null, latestTime = -1;
-      for (const key in lastPressedTimes) {
-        if (btnEls[key].classList.contains('active') &&
-            !cfg.ignoredForJoystick.includes(key) &&
-            lastPressedTimes[key] > latestTime) {
-          latestTime = lastPressedTimes[key];
-          activeBtn = key;
-        }
-      }
+            let selectedBtn = null;
 
-      if (activeBtn) {
-        const btnColor = window.getComputedStyle(btnEls[activeBtn]).backgroundColor;
-        const btnTextColor = window.getComputedStyle(btnEls[activeBtn]).color;
-        joystick.style.transform = 'translate(-50%, -50%) scale(1.3)';
-        joystick.textContent = btnEls[activeBtn].textContent;
-        joystick.style.background = btnColor;
-        joystick.style.color = btnTextColor;
-      } else {
-        joystick.style.transform = 'translate(-50%, -50%) scale(1)';
-        joystick.textContent = '';
-        joystick.style.background = 'rgba(128,128,128,1)';
-        joystick.style.color = '#fff';
-      }
-    }
+            Object.values(btnEls).forEach(btn => {
+              btn.addEventListener("mousedown", e => {
+                if (selectedBtn) selectedBtn.classList.remove("selected");
+                selectedBtn = btn;
+                selectedBtn.classList.add("selected");
+                e.stopPropagation();
+              });
+            });
 
-    // joystick/trail logic unchanged
-    function radialDeadzone(x, y, dz) {
-      const mag = Math.hypot(x, y);
-      if (mag < dz) return {x:0, y:0};
-      const s = (mag - dz) / (1 - dz);
-      return {x: x * s / mag, y: y * s / mag};
-    }
-    function clampCircle(x, y) {
-      const mag = Math.hypot(x, y);
-      if (mag > 1) return {x: x/mag, y: y/mag};
-      return {x, y};
-    }
-    function getStickXY(pad) {
-      if (!pad) return {x:0, y:0};
-      let {x, y} = radialDeadzone(pad.axes[0]||0, pad.axes[1]||0, cfg.deadzone);
-      const up = pad.buttons[12]?.pressed ? 1 : 0;
-      const down = pad.buttons[13]?.pressed ? 1 : 0;
-      const left = pad.buttons[14]?.pressed ? 1 : 0;
-      const right = pad.buttons[15]?.pressed ? 1 : 0;
-      x += right - left;
-      y += down - up;
-      if (cfg.invertY) y *= -1;
-      return clampCircle(x, y);
-    }
-    let smooth = {x:0, y:0};
-    const SMOOTH = 0.95;
-    function getSmoothedXY(pad) {
-      const t = getStickXY(pad);
-      smooth.x += (t.x - smooth.x) * SMOOTH;
-      smooth.y += (t.y - smooth.y) * SMOOTH;
-      return clampCircle(smooth.x, smooth.y);
-    }
-    const directions = [
-      {x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},
-      {x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}
-    ];
-    const normDirs = directions.map(d => {
-      const mag = Math.hypot(d.x,d.y);
-      return {x: d.x/mag, y: d.y/mag};
-    });
-    const markers = Array.from({length:8}, (_,i) => document.getElementById('marker'+i));
-    function getClosestDirection(x, y) {
-      const mag = Math.hypot(x, y);
-      if (mag < 0.25) return -1;
-      let best = -1, bestDot = -Infinity;
-      normDirs.forEach((d,i) => {
-        const dot = (x*d.x + y*d.y)/mag;
-        if (dot > bestDot) { bestDot = dot; best = i; }
-      });
-      return best;
-    }
-    function updateMarkers(activeDir) {
-      normDirs.forEach((d, i) => {
-        markers[i].style.left = 50 + d.x*45 + '%';
-        markers[i].style.top = 50 + d.y*45 + '%';
-        markers[i].classList.toggle('active', i === activeDir);
-      });
-    }
-    updateMarkers(-1);
-    const canvas = document.getElementById('stickCanvas');
-    const ctx = canvas.getContext('2d');
-    let canvasRadius = 0;
-    function resizeCanvas() {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      canvasRadius = Math.min(rect.width, rect.height)/2 - 10;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    const trail = [];
-    function drawTrail(x, y) {
-      trail.push({x,y});
-      if (trail.length > cfg.trail) trail.shift();
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      const cx = canvas.width/2, cy = canvas.height/2;
-      for (let i=1; i<trail.length; i++) {
-        const p0 = trail[i-1], p1 = trail[i];
-        const t = i/trail.length;
-        ctx.beginPath();
-        ctx.moveTo(cx + p0.x*canvasRadius, cy + p0.y*canvasRadius);
-        ctx.lineTo(cx + p1.x*canvasRadius, cy + p1.y*canvasRadius);
-        ctx.lineWidth = 10 * (t * 2);
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#CEEC73';
-        ctx.stroke();
-      }
-    }
-    function updateJoystickHead(x, y) {
-      joystick.style.left = 50 + x*45 + '%';
-      joystick.style.top = 50 + y*45 + '%';
-    }
-    function loop() {
-      const pad = navigator.getGamepads()[gamepadIndex ?? 0];
-      if (pad) {
-        const sm = getSmoothedXY(pad);
-        drawTrail(sm.x, sm.y);
-        const {x, y} = getStickXY(pad);
-        updateJoystickHead(x, y);
-        updateButtons(pad);
-        updateMarkers(getClosestDirection(x, y));
-      } else {
-        updateButtons(null);
-      }
-      requestAnimationFrame(loop);
-    }
-    requestAnimationFrame(loop);
-  </script>
-</body>
+            function snap10(val) { return Math.round(val/10)*10; }
+
+            document.addEventListener("keydown", e => {
+              if (e.key === "Backspace") {
+                localStorage.removeItem("buttonLabels");
+                localStorage.removeItem("buttonPositions");
+                location.reload();
+                return;
+              }
+
+              if (!selectedBtn) return;
+              const style = window.getComputedStyle(selectedBtn);
+              let top = parseInt(style.top) || 0;
+              let left = parseInt(style.left) || 0;
+
+              if (e.key === "ArrowUp") top -= 10;
+              if (e.key === "ArrowDown") top += 10;
+              if (e.key === "ArrowLeft") left -= 10;
+              if (e.key === "ArrowRight") left += 10;
+
+              selectedBtn.style.top = snap10(top) + "px";
+              selectedBtn.style.left = snap10(left) + "px";
+
+              savedPositions[selectedBtn.dataset.btn] = {top:selectedBtn.style.top, left:selectedBtn.style.left};
+              localStorage.setItem("buttonPositions", JSON.stringify(savedPositions));
+            });
+
+            document.addEventListener("mousedown", () => {
+              if (selectedBtn) { selectedBtn.classList.remove("selected"); selectedBtn = null; }
+            });
+
+            // Gamepad logic
+            let gamepadIndex = null;
+            window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
+            window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
+
+            const joystick = document.getElementById('joystickHead');
+            const lastPressedTimes = {};
+
+            function updateButtons(pad) {
+              if (!pad?.buttons) {
+                joystick.style.transform = 'translate(-50%, -50%) scale(1)';
+                joystick.textContent = '';
+                joystick.style.background = 'rgba(128,128,128,1)';
+                joystick.style.color = '#fff';
+                Object.values(btnEls).forEach(btn => btn.classList.remove('active'));
+                return;
+              }
+
+              for (const key in btnEls) {
+                const idx = cfg.map[key];
+                if (idx === undefined) continue;
+                const pressed = !!pad.buttons[idx]?.pressed;
+                btnEls[key].classList.toggle('active', pressed);
+                lastPressedTimes[key] = pressed ? performance.now() : lastPressedTimes[key] || 0;
+              }
+
+              let activeBtn = null, latestTime = -1;
+              for (const key in lastPressedTimes) {
+                if (btnEls[key].classList.contains('active') &&
+                    !cfg.ignoredForJoystick.includes(key) &&
+                    lastPressedTimes[key] > latestTime) {
+                  latestTime = lastPressedTimes[key];
+                  activeBtn = key;
+                }
+              }
+
+              if (activeBtn) {
+                const btnColor = window.getComputedStyle(btnEls[activeBtn]).backgroundColor;
+                const btnTextColor = window.getComputedStyle(btnEls[activeBtn]).color;
+                joystick.style.transform = 'translate(-50%, -50%) scale(1.3)';
+                joystick.textContent = btnEls[activeBtn].textContent;
+                joystick.style.background = btnColor;
+                joystick.style.color = btnTextColor;
+              } else {
+                joystick.style.transform = 'translate(-50%, -50%) scale(1)';
+                joystick.textContent = '';
+                joystick.style.background = 'rgba(128,128,128,1)';
+                joystick.style.color = '#fff';
+              }
+            }
+
+            function radialDeadzone(x, y, dz) {
+              const mag = Math.hypot(x, y);
+              if (mag < dz) return {x:0, y:0};
+              const s = (mag - dz) / (1 - dz);
+              return {x: x * s / mag, y: y * s / mag};
+            }
+
+            function clampCircle(x, y) {
+              const mag = Math.hypot(x, y);
+              if (mag > 1) return {x: x/mag, y: y/mag};
+              return {x, y};
+            }
+
+            function getStickXY(pad) {
+              if (!pad) return {x:0, y:0};
+              let {x, y} = radialDeadzone(pad.axes[0]||0, pad.axes[1]||0, cfg.deadzone);
+              const up = pad.buttons[12]?.pressed ? 1 : 0;
+              const down = pad.buttons[13]?.pressed ? 1 : 0;
+              const left = pad.buttons[14]?.pressed ? 1 : 0;
+              const right = pad.buttons[15]?.pressed ? 1 : 0;
+              x += right - left;
+              y += down - up;
+              if (cfg.invertY) y *= -1;
+              return clampCircle(x, y);
+            }
+
+            let smooth = {x:0, y:0};
+            const SMOOTH = 0.95;
+            function getSmoothedXY(pad) {
+              const t = getStickXY(pad);
+              smooth.x += (t.x - smooth.x) * SMOOTH;
+              smooth.y += (t.y - smooth.y) * SMOOTH;
+              return clampCircle(smooth.x, smooth.y);
+            }
+
+            const directions = [
+              {x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},
+              {x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}
+            ];
+            const normDirs = directions.map(d => {
+              const mag = Math.hypot(d.x,d.y);
+              return {x: d.x/mag, y: d.y/mag};
+            });
+            const markers = Array.from({length:8}, (_,i) => document.getElementById('marker'+i));
+            function getClosestDirection(x, y) {
+              const mag = Math.hypot(x, y);
+              if (mag < 0.25) return -1;
+              let best = -1, bestDot = -Infinity;
+              normDirs.forEach((d,i) => {
+                const dot = (x*d.x + y*d.y)/mag;
+                if (dot > bestDot) { bestDot = dot; best = i; }
+              });
+              return best;
+            }
+            function updateMarkers(activeDir) {
+              normDirs.forEach((d, i) => {
+                markers[i].style.left = 50 + d.x*45 + '%';
+                markers[i].style.top = 50 + d.y*45 + '%';
+                markers[i].classList.toggle('active', i === activeDir);
+              });
+            }
+            updateMarkers(-1);
+
+            const canvas = document.getElementById('stickCanvas');
+            const ctx = canvas.getContext('2d');
+            let canvasRadius = 0;
+            function resizeCanvas() {
+              const rect = canvas.getBoundingClientRect();
+              canvas.width = rect.width;
+              canvas.height = rect.height;
+              canvasRadius = Math.min(rect.width, rect.height)/2 - 10;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const trail = [];
+            function drawTrail(x, y) {
+              trail.push({x,y});
+              if (trail.length > cfg.trail) trail.shift();
+              ctx.clearRect(0,0,canvas.width,canvas.height);
+              const cx = canvas.width/2, cy = canvas.height/2;
+              for (let i=1; i<trail.length; i++) {
+                const p0 = trail[i-1], p1 = trail[i];
+                const t = i/trail.length;
+                ctx.beginPath();
+                ctx.moveTo(cx + p0.x*canvasRadius, cy + p0.y*canvasRadius);
+                ctx.lineTo(cx + p1.x*canvasRadius, cy + p1.y*canvasRadius);
+                ctx.lineWidth = 10 * (t * 2);
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#CEEC73';
+                ctx.stroke();
+              }
+              ctx.globalAlpha = 1;
+            }
+
+            function updateJoystick(pad) {
+              const {x,y} = getSmoothedXY(pad);
+              drawTrail(x,y);
+              const cx = canvas.width/2, cy = canvas.height/2;
+              joystick.style.left = (cx + x*canvasRadius) + 'px';
+              joystick.style.top = (cy + y*canvasRadius) + 'px';
+              const dir = getClosestDirection(x,y);
+              updateMarkers(dir);
+            }
+
+            function loop() {
+              const pad = gamepadIndex !== null ? navigator.getGamepads()[gamepadIndex] : null;
+              updateButtons(pad);
+              updateJoystick(pad);
+              requestAnimationFrame(loop);
+            }
+            loop();
+        </script>
+    </body>
 </html>
