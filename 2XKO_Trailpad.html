@@ -193,6 +193,15 @@ const savedSizes = JSON.parse(localStorage.getItem("elementSizes") || "{}");
 const stickWrapper = document.getElementById('stickWrapper');
 const joystick = document.getElementById('joystickHead');
 const movableElements = {...btnEls, stickWrapper};
+
+const hiddenButtons = JSON.parse(localStorage.getItem("hiddenButtons") || "[]");
+hiddenButtons.forEach(btnName => {
+    if (btnEls[btnName]) {
+        btnEls[btnName].style.display = "none";
+        if (!cfg.ignoredForJoystick.includes(btnName)) cfg.ignoredForJoystick.push(btnName);
+    }
+});
+
 for (const key in savedSizes) {
     const el = movableElements[key];
     if (el) {
@@ -259,12 +268,24 @@ document.addEventListener("mousedown", () => {
 
 // Keyboard Controls
 document.addEventListener("keydown", e => {
+    // ESC: reset everything
     if (e.key === "Escape") {
         localStorage.removeItem("buttonLabels");
         localStorage.removeItem("buttonPositions");
         localStorage.removeItem("stickWrapperPosition");
         localStorage.removeItem("elementSizes");
+        localStorage.removeItem("hiddenButtons");
         location.reload();
+        return;
+    }
+
+    // Unhide all
+    if (e.key === "Home") {
+        Object.values(btnEls).forEach(btn => btn.style.display = "flex");
+        hiddenButtons.length = 0;
+        localStorage.setItem("hiddenButtons", JSON.stringify(hiddenButtons));
+        cfg.ignoredForJoystick = cfg.ignoredForJoystick.filter(b => !btnEls[b]);
+        e.preventDefault();
         return;
     }
     if (!selectedElement) return;
@@ -312,6 +333,17 @@ document.addEventListener("keydown", e => {
 
         if (e.key === "[") { borderRadius = Math.max(0,borderRadius-10); updated=true; }
         if (e.key === "]") { borderRadius += 10; updated=true; }
+    
+        // Hide
+        if (e.key === "Delete" && selectedElement?.classList.contains("btn")) {
+            selectedElement.style.display = "none";
+            const btnName = selectedElement.dataset.btn;
+            if (!hiddenButtons.includes(btnName)) hiddenButtons.push(btnName);
+            localStorage.setItem("hiddenButtons", JSON.stringify(hiddenButtons));
+            if (!cfg.ignoredForJoystick.includes(btnName)) cfg.ignoredForJoystick.push(btnName);
+            e.preventDefault();
+            return;
+        }
     }
 
     if (updated) {
