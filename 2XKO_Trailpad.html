@@ -27,8 +27,8 @@
     #app { position: absolute; top: 80px; left: 30px; }
 
     #stickWrapper {
-        width: 220px; height: 220px;
-        position: absolute; top: 0px; left: 0px;
+        width: 240px; height: 240px;
+        position: absolute; top: -20px; left: 0px;
         background: transparent;
         background-image: url("stickWrapper.svg");
         background-size: cover;
@@ -84,20 +84,36 @@
         color: #000; cursor: pointer;
     }
 
-    .btn[data-btn="A"] { background: #C3E67E; top: 110px; left: 470px; }
-    .btn[data-btn="B"] { background: #6C30BF; top: 0px; left: 470px; }
+    /*
+    2XKO Default in-game button colors:
+    L:		#B8ADD9
+    M:		#9C7ACC
+    H:		#6C30BF
+    D:		#D98041
+    S1:		#4CB6D9
+    S2:		#CC5C5C
+    T:		#C3E67E
+    P:		#3D6DCC
+    TH:		#D9B64C
+    TA:		#805973
+    DS:		#D9B64C
+    ULT:	#7F47CC	
+    */
+
+    .btn[data-btn="A"] { background: #4CB6D9; top: 110px; left: 250px; }
+    .btn[data-btn="B"] { background: #CC5C5C; top: 110px; left: 360px; }
     .btn[data-btn="X"] { background: #B8ADD9; top: 0px; left: 250px; }
     .btn[data-btn="Y"] { background: #9C7ACC; top: 0px; left: 360px; }
 
-    .btn[data-btn="LB"] { background: #3D6DCC; top: 110px; left: 580px; }
-    .btn[data-btn="RB"] { background: #D98041; top: 0px; left: 580px; }
-    .btn[data-btn="LT"] { background: #24AFDD; top: 110px; left: 250px; }
-    .btn[data-btn="RT"] { background: #CC5C5C; top: 110px; left: 360px; }
+    .btn[data-btn="LB"] { background: #D98041; top: 0px; left: 580px; }
+    .btn[data-btn="RB"] { background: #6C30BF; top: 0px; left: 470px; }
+    .btn[data-btn="LT"] { background: #3D6DCC; top: 110px; left: 580px; }
+    .btn[data-btn="RT"] { background: #C3E67E; top: 110px; left: 470px; }
 
     .btn[data-btn="LS"] { background: #D9B64C; top: 210px; left: 310px; width: 80px; height: 80px; }
-    .btn[data-btn="RS"] { background: #7F47CC; top: 210px; left: 530px; width: 80px; height: 80px; }
-    .btn[data-btn="View"] { background: #646464; top: -70px; left: 310px; width: 80px; height: 40px; border-radius: 30px; }
-    .btn[data-btn="Menu"] { background: #646464; top: -70px; left: 530px; width: 80px; height: 40px; border-radius: 30px; }
+    .btn[data-btn="RS"] { background: #805973; top: 210px; left: 530px; width: 80px; height: 80px; }
+    .btn[data-btn="View"] { background: #646464; top: -60px; left: 310px; width: 80px; height: 40px; border-radius: 30px; font-size: 20px }
+    .btn[data-btn="Menu"] { background: #646464; top: -60px; left: 530px; width: 80px; height: 40px; border-radius: 30px; font-size: 20px }
 
     .btn.active { filter: brightness(1.5); transform: scale(1.05); }
     .btn.selected { box-shadow: 0px 0px 0px 8px rgba(255,255,255,1) }
@@ -125,18 +141,18 @@
         <div id="joystickHead"></div>
     </div>
 
-    <div class="btn" data-btn="A">T</div>
-    <div class="btn" data-btn="B">H</div>
-    <div class="btn" data-btn="X">L</div>
-    <div class="btn" data-btn="Y">M</div>
-    <div class="btn" data-btn="LB">P</div>
-    <div class="btn" data-btn="RB">D</div>
-    <div class="btn" data-btn="LT">S1</div>
-    <div class="btn" data-btn="RT">S2</div>
-    <div class="btn" data-btn="LS">L3</div>
-    <div class="btn" data-btn="RS">R3</div>
-    <div class="btn" data-btn="View">-</div>
-    <div class="btn" data-btn="Menu">+</div>
+    <div class="btn" data-btn="A">A</div>
+    <div class="btn" data-btn="B">B</div>
+    <div class="btn" data-btn="X">X</div>
+    <div class="btn" data-btn="Y">Y</div>
+    <div class="btn" data-btn="LB">LB</div>
+    <div class="btn" data-btn="RB">RB</div>
+    <div class="btn" data-btn="LT">LT</div>
+    <div class="btn" data-btn="RT">RT</div>
+    <div class="btn" data-btn="LS">LS</div>
+    <div class="btn" data-btn="RS">RS</div>
+    <div class="btn" data-btn="View">View</div>
+    <div class="btn" data-btn="Menu">Menu</div>
 </div>
 
 <script>
