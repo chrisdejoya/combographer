@@ -383,6 +383,55 @@ document.addEventListener("keydown", e => {
     }
 });
 
+function moveSelectedElement(dx, dy) {
+    if (!selectedElement) return;
+
+    const style = window.getComputedStyle(selectedElement);
+    let top = parseInt(style.top) || 0;
+    let left = parseInt(style.left) || 0;
+
+    top += dy;
+    left += dx;
+
+    // Snap to 10px grid
+    function snap10(val) { return Math.round(val / 10) * 10; }
+    selectedElement.style.top = snap10(top) + "px";
+    selectedElement.style.left = snap10(left) + "px";
+
+    // Save position
+    const savedPositionsLS = JSON.parse(localStorage.getItem("buttonPositions") || "{}");
+    if (selectedElement.dataset?.btn) {
+        savedPositionsLS[selectedElement.dataset.btn] = { top: selectedElement.style.top, left: selectedElement.style.left };
+        localStorage.setItem("buttonPositions", JSON.stringify(savedPositionsLS));
+    } else if (selectedElement.id === "stickWrapper") {
+        localStorage.setItem("stickWrapperPosition", JSON.stringify({ top: selectedElement.style.top, left: selectedElement.style.left }));
+    }
+}
+
+const elementMoveTimers = { up: 0, down: 0, left: 0, right: 0 };
+const moveDelay = 150; // ms between movements
+const moveStep = 10;   // 10px increments
+
+function handleDpadMovement(pad) {
+    if (!selectedElement || !pad) return;
+
+    const now = performance.now();
+
+    const directions = [
+        { btn: 12, dx: 0, dy: -moveStep, key: "up" },   // Up
+        { btn: 13, dx: 0, dy: moveStep, key: "down" },  // Down
+        { btn: 14, dx: -moveStep, dy: 0, key: "left" }, // Left
+        { btn: 15, dx: moveStep, dy: 0, key: "right" }  // Right
+    ];
+
+    directions.forEach(dir => {
+        if (pad.buttons[dir.btn]?.pressed && now - elementMoveTimers[dir.key] > moveDelay) {
+            moveSelectedElement(dir.dx, dir.dy);
+            elementMoveTimers[dir.key] = now;
+        }
+    });
+}
+
 // Gamepad logic
 let activeGamepadIndex = null;
 
@@ -483,8 +532,8 @@ function drawTrail(x,y){
 function animate(){
     activeGamepadIndex = detectActiveGamepad();
     const pad = navigator.getGamepads()[activeGamepadIndex];
-
     updateButtons(pad);
+    handleDpadMovement(pad);
     const {x,y}=getStickXY(pad);
     const cx=canvas.width/2, cy=canvas.height/2;
     const radius=canvas.width/2-25;
