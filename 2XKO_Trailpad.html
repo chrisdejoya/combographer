@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Trailpad Overlay</title>
+    
 <style>
     @font-face {
         font-family: "Swiss721";
@@ -140,8 +141,23 @@
 
 <script>
 const cfg = {
-    deadzone: 0.1, trail: 12, invertY: false,
-    map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11},
+    deadzone: 0.1,
+    trail: 12,
+    invertY: false,
+    map: {
+        A:0,
+        B:1,
+        X:2,
+        Y:3,
+        LB:4,
+        RB:5,
+        LT:6,
+        RT:7,
+        View:8,
+        Menu:9,
+        LS:10,
+        RS:11
+    },
     ignoredForJoystick: ['View','Menu','LS','RS']
 };
 
@@ -259,7 +275,7 @@ document.addEventListener("keydown", e => {
             if (e.key === "ArrowRight") { left += 10; updated=true; }
         }
 
-        // Resize (shift)
+        // Resize
         if (e.shiftKey) {
             if (selectedElement.id === "stickWrapper") {
                 if (e.key === "ArrowUp" || e.key === "ArrowRight") { 
@@ -318,10 +334,26 @@ document.addEventListener("keydown", e => {
     }
 });
 
-// Gamepad & joystick logic
-let gamepadIndex = null;
-window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
-window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
+// Gamepad logic
+let activeGamepadIndex = null;
+
+function detectActiveGamepad() {
+    const gamepads = navigator.getGamepads();
+    for (let i = 0; i < gamepads.length; i++) {
+        const pad = gamepads[i];
+        if (!pad) continue;
+        const anyButtonPressed = pad.buttons.some(b => b.pressed);
+        const anyAxisMoved = pad.axes.some(a => Math.abs(a) > cfg.deadzone);
+        if (anyButtonPressed || anyAxisMoved) return i;
+    }
+    return null;
+}
+
+window.addEventListener('gamepadconnected', e => console.log("Connected:", e.gamepad.id, e.gamepad.index));
+window.addEventListener('gamepaddisconnected', e => {
+    console.log("Disconnected:", e.gamepad.id, e.gamepad.index);
+    if (activeGamepadIndex === e.gamepad.index) activeGamepadIndex = null;
+});
 
 const lastPressedTimes = {};
 function updateButtons(pad){
@@ -359,42 +391,14 @@ function updateButtons(pad){
     }
 }
 
-function radialDeadzone(x,y,dz){
-    const mag=Math.hypot(x,y);
-    if(mag<dz) return {x:0,y:0};
-    const s=(mag-dz)/(1-dz);
-    return {x:x*s/mag,y:y*s/mag};
-}
-function clampCircle(x,y){
-    const mag=Math.hypot(x,y);
-    if(mag>1) return {x:x/mag,y:y/mag};
-    return {x,y};
-}
-function getStickXY(pad){
-    if(!pad) return {x:0,y:0};
-    let {x,y}=radialDeadzone(pad.axes[0]||0,pad.axes[1]||0,cfg.deadzone);
-    const up=pad.buttons[12]?.pressed?1:0;
-    const down=pad.buttons[13]?.pressed?1:0;
-    const left=pad.buttons[14]?.pressed?1:0;
-    const right=pad.buttons[15]?.pressed?1:0;
-    if(up||down||left||right){
-        y=(up?-1:0)+(down?1:0); x=(left?-1:0)+(right?1:0);
-        if(x&&y){x*=0.707;y*=0.707;}
-    }
-    return clampCircle(x,cfg.invertY?-y:y);
-}
+// Stick helpers
+function radialDeadzone(x,y,dz){ const mag=Math.hypot(x,y); if(mag<dz) return {x:0,y:0}; const s=(mag-dz)/(1-dz); return {x:x*s/mag,y:y*s/mag}; }
+function clampCircle(x,y){ const mag=Math.hypot(x,y); if(mag>1) return {x:x/mag,y:y/mag}; return {x,y}; }
+function getStickXY(pad){ if(!pad) return {x:0,y:0}; let {x,y}=radialDeadzone(pad.axes[0]||0,pad.axes[1]||0,cfg.deadzone); const up=pad.buttons[12]?.pressed?1:0; const down=pad.buttons[13]?.pressed?1:0; const left=pad.buttons[14]?.pressed?1:0; const right=pad.buttons[15]?.pressed?1:0; if(up||down||left||right){ y=(up?-1:0)+(down?1:0); x=(left?-1:0)+(right?1:0); if(x&&y){x*=0.707;y*=0.707;} } return clampCircle(x,cfg.invertY?-y:y); }
+
 function updateMarkers(idx){
-    const dirs=[
-      {x:1,y:0},          // →
-      {x:0.707,y:0.707},  // ↗
-      {x:0,y:1},          // ↑
-      {x:-0.707,y:0.707}, // ↖
-      {x:-1,y:0},         // ←
-      {x:-0.707,y:-0.707},// ↙
-      {x:0,y:-1},         // ↓
-      {x:0.707,y:-0.707}  // ↘
-    ];
-    const radiusPct = 45; // relative offset
+    const dirs=[{x:1,y:0},{x:0.707,y:0.707},{x:0,y:1},{x:-0.707,y:0.707},{x:-1,y:0},{x:-0.707,y:-0.707},{x:0,y:-1},{x:0.707,y:-0.707}];
+    const radiusPct = 45;
     dirs.forEach((d,i)=>{
         const m=document.getElementById('marker'+i);
         m.style.left=(50+d.x*radiusPct)+'%';
@@ -408,77 +412,36 @@ let trail=[];
 function resizeCanvas(){ canvas.width=stickWrapper.clientWidth; canvas.height=stickWrapper.clientHeight; }
 resizeCanvas(); window.addEventListener('resize',resizeCanvas);
 
-function drawTrail(x, y) {
-    // optional: accept (x,y) in either normalized (-1..1) coordinates OR absolute pixel coords
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-    const cr = (typeof canvasRadius === 'number' && canvasRadius > 0)
-        ? canvasRadius
-        : Math.min(canvas.width, canvas.height) / 2 - 10;
-
-    if (typeof x !== 'undefined' && typeof y !== 'undefined') {
-        // If incoming values look like pixels (abs > 1), convert to normalized
-        if (Math.abs(x) > 1.01 || Math.abs(y) > 1.01) {
-            trail.push({ x: (x - cx) / cr, y: (y - cy) / cr });
-        } else {
-            // already normalized
-            trail.push({ x: x, y: y });
-        }
-        if (trail.length > cfg.trail) trail.shift();
+function drawTrail(x,y){
+    const cx=canvas.width/2, cy=canvas.height/2, cr=Math.min(canvas.width, canvas.height)/2-10;
+    if(typeof x!=='undefined' && typeof y!=='undefined'){ trail.push({x:x,y:y}); if(trail.length>cfg.trail) trail.shift(); }
+    if(!trail.length || trail.length<2){ ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const trailColor = (getComputedStyle(document.documentElement).getPropertyValue('--trail-color')||'#CEEC73').trim();
+    const first = trail[0]; const entriesAreNormalized = Math.abs(first.x)<=1.01 && Math.abs(first.y)<=1.01;
+    for(let i=1;i<trail.length;i++){
+        const p0=trail[i-1],p1=trail[i],t=i/trail.length;
+        const x0=entriesAreNormalized?cx+p0.x*cr:p0.x, y0=entriesAreNormalized?cy+p0.y*cr:p0.y;
+        const x1=entriesAreNormalized?cx+p1.x*cr:p1.x, y1=entriesAreNormalized?cy+p1.y*cr:p1.y;
+        if(!isFinite(x0)||!isFinite(y0)||!isFinite(x1)||!isFinite(y1)) continue;
+        ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1);
+        ctx.lineWidth = 10*(t*2); ctx.lineCap='round'; ctx.globalAlpha=1; ctx.strokeStyle=trailColor; ctx.stroke();
     }
-
-    // nothing to draw
-    if (!trail.length || trail.length < 2) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        return;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const trailColor = (getComputedStyle(document.documentElement)
-        .getPropertyValue('--trail-color') || '#CEEC73').trim();
-
-    // detect whether stored trail points are normalized (-1..1) or absolute pixels
-    const first = trail[0];
-    const entriesAreNormalized = Math.abs(first.x) <= 1.01 && Math.abs(first.y) <= 1.01;
-
-    for (let i = 1; i < trail.length; i++) {
-        const p0 = trail[i - 1];
-        const p1 = trail[i];
-        const t = i / trail.length; // newer segments -> larger t
-
-        const x0 = entriesAreNormalized ? (cx + p0.x * cr) : p0.x;
-        const y0 = entriesAreNormalized ? (cy + p0.y * cr) : p0.y;
-        const x1 = entriesAreNormalized ? (cx + p1.x * cr) : p1.x;
-        const y1 = entriesAreNormalized ? (cy + p1.y * cr) : p1.y;
-
-        // guard against NaN
-        if (!isFinite(x0) || !isFinite(y0) || !isFinite(x1) || !isFinite(y1)) continue;
-
-        ctx.beginPath();
-        ctx.moveTo(x0, y0);
-        ctx.lineTo(x1, y1);
-
-        // original-style taper: thicker/opaque near head, thinner/faded toward tail
-        ctx.lineWidth = 10 * (t * 2); // same formula you used previously
-        ctx.lineCap = 'round';
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = trailColor;
-        ctx.stroke();
-    }
-
-    ctx.globalAlpha = 1; // reset
+    ctx.globalAlpha=1;
 }
 
-
+// Animate loop
 function animate(){
-    const pad=navigator.getGamepads()[gamepadIndex];
+    activeGamepadIndex = detectActiveGamepad();
+    const pad = navigator.getGamepads()[activeGamepadIndex];
+
     updateButtons(pad);
     const {x,y}=getStickXY(pad);
     const cx=canvas.width/2, cy=canvas.height/2;
     const radius=canvas.width/2-25;
     const jx=cx+x*radius, jy=cy+y*radius;
-    joystick.style.left=jx+'px'; joystick.style.top=jy+'px';
+    joystick.style.left=jx+'px';
+    joystick.style.top=jy+'px';
     const deg=(Math.atan2(y,x)*180/Math.PI+360)%360;
     let idx=-1;
     if(Math.hypot(x,y)>0.5) idx=Math.round(deg/45)%8;
@@ -489,5 +452,6 @@ function animate(){
 }
 animate();
 </script>
+
 </body>
 </html>
