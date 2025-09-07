@@ -262,10 +262,10 @@ document.addEventListener("keydown", e => {
         // Resize (shift)
         if (e.shiftKey) {
             if (selectedElement.id === "stickWrapper") {
-                if (e.key === "ArrowDown" || e.key === "ArrowRight") { 
+                if (e.key === "ArrowUp" || e.key === "ArrowRight") { 
                     width += 10; height += 10; updated = true; 
                 }
-                if (e.key === "ArrowUp" || e.key === "ArrowLeft") { 
+                if (e.key === "ArrowDown" || e.key === "ArrowLeft") { 
                     width = Math.max(50, width - 10); 
                     height = Math.max(50, height - 10); 
                     updated = true; 
