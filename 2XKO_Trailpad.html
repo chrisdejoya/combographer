@@ -284,12 +284,13 @@ document.addEventListener("keydown", e => {
         Object.values(btnEls).forEach(btn => btn.style.display = "flex");
         hiddenButtons.length = 0;
         localStorage.setItem("hiddenButtons", JSON.stringify(hiddenButtons));
-        cfg.ignoredForJoystick = cfg.ignoredForJoystick.filter(b => !btnEls[b]);
+        // Always keep View and Menu ignored
+        cfg.ignoredForJoystick = ['View', 'Menu', ...cfg.ignoredForJoystick.filter(b => b !== 'View' && b !== 'Menu')];
         e.preventDefault();
         return;
     }
     if (!selectedElement) return;
-
+    
     const style = window.getComputedStyle(selectedElement);
     let top = parseInt(style.top)||0, left = parseInt(style.left)||0;
     let width = parseInt(style.width)||0, height = parseInt(style.height)||0;
