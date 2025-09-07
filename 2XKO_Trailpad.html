@@ -31,7 +31,7 @@
         background: transparent;
         background-image: url("stickWrapper.svg");
         background-size: cover;
-        border-radius: 50%;
+        border-radius: 100%;
     }
 
     #stickCanvas {
@@ -99,8 +99,8 @@
     .btn[data-btn="Menu"] { background: #646464; top: -70px; left: 530px; width: 80px; height: 40px; border-radius: 30px; }
 
     .btn.active { filter: brightness(1.5); transform: scale(1.05); }
-    .btn.selected { outline: 6px solid yellow; }
-    .stickHighlight.selected { outline: 6px solid yellow; border-radius: 50%; }
+    .btn.selected { box-shadow: 0px 0px 0px 8px rgba(255,255,255,1) }
+    .stickHighlight.selected { box-shadow: 0px 0px 0px 8px rgba(255,255,255,1) }
 
     :root {
     --trail-color: #CEEC73; /* default trail color */
@@ -140,7 +140,7 @@
 
 <script>
 const cfg = {
-    deadzone: 0.1, trail: 15, invertY: false,
+    deadzone: 0.1, trail: 12, invertY: false,
     map: {A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,View:8,Menu:9,LS:10,RS:11},
     ignoredForJoystick: ['View','Menu','LS','RS']
 };
@@ -148,20 +148,18 @@ const cfg = {
 const btnEls = {};
 document.querySelectorAll('.btn').forEach(el => btnEls[el.dataset.btn] = el);
 
-// Restore labels
 const savedLabels = JSON.parse(localStorage.getItem("buttonLabels") || "{}");
 for (const key in savedLabels) if (btnEls[key]) btnEls[key].textContent = savedLabels[key];
 
-// Restore positions
 const savedPositions = JSON.parse(localStorage.getItem("buttonPositions") || "{}");
 for (const key in savedPositions) if (btnEls[key]) {
     btnEls[key].style.top = savedPositions[key].top;
     btnEls[key].style.left = savedPositions[key].left;
 }
 
-// Restore sizes
 const savedSizes = JSON.parse(localStorage.getItem("elementSizes") || "{}");
 const stickWrapper = document.getElementById('stickWrapper');
+const joystick = document.getElementById('joystickHead');
 const movableElements = {...btnEls, stickWrapper};
 for (const key in savedSizes) {
     const el = movableElements[key];
@@ -173,7 +171,6 @@ for (const key in savedSizes) {
     }
 }
 
-// Restore stickWrapper position
 const savedStickPos = JSON.parse(localStorage.getItem("stickWrapperPosition") || "{}");
 if (savedStickPos.top) stickWrapper.style.top = savedStickPos.top;
 if (savedStickPos.left) stickWrapper.style.left = savedStickPos.left;
@@ -228,7 +225,7 @@ document.addEventListener("mousedown", () => {
     selectedElement = null;
 });
 
-// Keyboard Controls: move, resize, border-radius, font-size
+// Keyboard Controls
 document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
         localStorage.removeItem("buttonLabels");
@@ -249,7 +246,6 @@ document.addEventListener("keydown", e => {
 
     function snap10(val){ return Math.round(val/10)*10; }
 
-    // Ctrl + [ / ] = font size
     if (e.ctrlKey) {
         if (e.key === "[") { fontSize = Math.max(8, fontSize-2); updated=true; e.preventDefault(); }
         if (e.key === "]") { fontSize += 2; updated=true; e.preventDefault(); }
@@ -265,13 +261,23 @@ document.addEventListener("keydown", e => {
 
         // Resize (shift)
         if (e.shiftKey) {
-            if (e.key === "ArrowDown") { height -= 10; updated=true; }
-            if (e.key === "ArrowUp") { height += 10; updated=true; }
-            if (e.key === "ArrowLeft") { width -= 10; updated=true; }
-            if (e.key === "ArrowRight") { width += 10; updated=true; }
+            if (selectedElement.id === "stickWrapper") {
+                if (e.key === "ArrowDown" || e.key === "ArrowRight") { 
+                    width += 10; height += 10; updated = true; 
+                }
+                if (e.key === "ArrowUp" || e.key === "ArrowLeft") { 
+                    width = Math.max(50, width - 10); 
+                    height = Math.max(50, height - 10); 
+                    updated = true; 
+                }
+            } else {
+                if (e.key === "ArrowDown") { height -= 10; updated=true; }
+                if (e.key === "ArrowUp") { height += 10; updated=true; }
+                if (e.key === "ArrowLeft") { width -= 10; updated=true; }
+                if (e.key === "ArrowRight") { width += 10; updated=true; }
+            }
         }
 
-        // Border-radius
         if (e.key === "[") { borderRadius = Math.max(0,borderRadius-10); updated=true; }
         if (e.key === "]") { borderRadius += 10; updated=true; }
     }
@@ -284,7 +290,6 @@ document.addEventListener("keydown", e => {
         selectedElement.style.borderRadius = snap10(borderRadius)+"px";
         selectedElement.style.fontSize = fontSize + "px";
 
-        // Save positions & sizes
         const savedSizesLS = JSON.parse(localStorage.getItem("elementSizes")||"{}");
         if (selectedElement.dataset?.btn) {
             savedPositions[selectedElement.dataset.btn] = {top:selectedElement.style.top, left:selectedElement.style.left};
@@ -302,19 +307,23 @@ document.addEventListener("keydown", e => {
                 height:selectedElement.style.height,
                 borderRadius:selectedElement.style.borderRadius
             };
+
+            // recalc canvas + recenter joystick & markers
+            resizeCanvas();
+            joystick.style.left = (canvas.width / 2) + "px";
+            joystick.style.top = (canvas.height / 2) + "px";
+            updateMarkers(-1);
         }
         localStorage.setItem("elementSizes", JSON.stringify(savedSizesLS));
     }
 });
 
-// ----- Gamepad & joystick logic -----
+// Gamepad & joystick logic
 let gamepadIndex = null;
 window.addEventListener('gamepadconnected', e => gamepadIndex = e.gamepad.index);
 window.addEventListener('gamepaddisconnected', () => gamepadIndex = null);
 
-const joystick = document.getElementById('joystickHead');
 const lastPressedTimes = {};
-
 function updateButtons(pad){
     if(!pad?.buttons){
         joystick.style.transform='translate(-50%,-50%) scale(1)'; joystick.textContent='';
@@ -322,7 +331,6 @@ function updateButtons(pad){
         Object.values(btnEls).forEach(btn=>btn.classList.remove('active'));
         return;
     }
-
     for(const key in btnEls){
         const idx=cfg.map[key];
         if(idx===undefined) continue;
@@ -330,7 +338,6 @@ function updateButtons(pad){
         btnEls[key].classList.toggle('active',pressed);
         lastPressedTimes[key]=pressed?performance.now():lastPressedTimes[key]||0;
     }
-
     let activeBtn=null,latestTime=-1;
     for(const key in lastPressedTimes){
         if(btnEls[key].classList.contains('active')&&!cfg.ignoredForJoystick.includes(key)
@@ -338,7 +345,6 @@ function updateButtons(pad){
             latestTime=lastPressedTimes[key]; activeBtn=key;
         }
     }
-
     if(activeBtn){
         const btnColor=window.getComputedStyle(btnEls[activeBtn]).backgroundColor;
         const btnTextColor=window.getComputedStyle(btnEls[activeBtn]).color;
@@ -359,13 +365,11 @@ function radialDeadzone(x,y,dz){
     const s=(mag-dz)/(1-dz);
     return {x:x*s/mag,y:y*s/mag};
 }
-
 function clampCircle(x,y){
     const mag=Math.hypot(x,y);
     if(mag>1) return {x:x/mag,y:y/mag};
     return {x,y};
 }
-
 function getStickXY(pad){
     if(!pad) return {x:0,y:0};
     let {x,y}=radialDeadzone(pad.axes[0]||0,pad.axes[1]||0,cfg.deadzone);
@@ -373,80 +377,108 @@ function getStickXY(pad){
     const down=pad.buttons[13]?.pressed?1:0;
     const left=pad.buttons[14]?.pressed?1:0;
     const right=pad.buttons[15]?.pressed?1:0;
-    x+=right-left; y+=down-up;
-    if(cfg.invertY) y*=-1;
-    return clampCircle(x,y);
+    if(up||down||left||right){
+        y=(up?-1:0)+(down?1:0); x=(left?-1:0)+(right?1:0);
+        if(x&&y){x*=0.707;y*=0.707;}
+    }
+    return clampCircle(x,cfg.invertY?-y:y);
 }
-
-let smooth={x:0,y:0}; const SMOOTH=0.95;
-function getSmoothedXY(pad){
-    const t=getStickXY(pad);
-    smooth.x+=(t.x-smooth.x)*SMOOTH; smooth.y+=(t.y-smooth.y)*SMOOTH;
-    return clampCircle(smooth.x,smooth.y);
-}
-
-const directions=[{x:0,y:-1},{x:1,y:-1},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:-1,y:1},{x:-1,y:0},{x:-1,y:-1}];
-const normDirs=directions.map(d=>{const mag=Math.hypot(d.x,d.y);return {x:d.x/mag,y:d.y/mag};});
-const markers=Array.from({length:8},(_,i)=>document.getElementById('marker'+i));
-function getClosestDirection(x,y){
-    const mag=Math.hypot(x,y);
-    if(mag<0.25) return -1;
-    let best=-1,bestDot=-Infinity;
-    normDirs.forEach((d,i)=>{const dot=(x*d.x+y*d.y)/mag;if(dot>bestDot){bestDot=dot;best=i;}});
-    return best;
-}
-function updateMarkers(activeDir){
-    normDirs.forEach((d,i)=>{
-        markers[i].style.left=50+d.x*45+'%';
-        markers[i].style.top=50+d.y*45+'%';
-        markers[i].classList.toggle('active',i===activeDir);
+function updateMarkers(idx){
+    const dirs=[{x:1,y:0},{x:0.707,y:-0.707},{x:0,y:-1},{x:-0.707,y:-0.707},{x:-1,y:0},{x:-0.707,y:0.707},{x:0,y:1},{x:0.707,y:0.707}];
+    const radiusPct = 45; // relative offset
+    dirs.forEach((d,i)=>{
+        const m=document.getElementById('marker'+i);
+        m.style.left=(50+d.x*radiusPct)+'%';
+        m.style.top=(50+d.y*radiusPct)+'%';
+        m.classList.toggle('active',i===idx);
     });
 }
-updateMarkers(-1);
 
-const canvas=document.getElementById('stickCanvas'); const ctx=canvas.getContext('2d');
-let canvasRadius=0;
-function resizeCanvas(){
-    const rect=canvas.getBoundingClientRect();
-    canvas.width=rect.width; canvas.height=rect.height;
-    canvasRadius=Math.min(rect.width,rect.height)/2-10;
-}
+const canvas=document.getElementById('stickCanvas'), ctx=canvas.getContext('2d');
+let trail=[];
+function resizeCanvas(){ canvas.width=stickWrapper.clientWidth; canvas.height=stickWrapper.clientHeight; }
 resizeCanvas(); window.addEventListener('resize',resizeCanvas);
 
-const trail=[]; 
-function drawTrail(x,y){
-    trail.push({x,y}); if(trail.length>cfg.trail) trail.shift();
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    const cx=canvas.width/2,cy=canvas.height/2;
+function drawTrail(x, y) {
+    // optional: accept (x,y) in either normalized (-1..1) coordinates OR absolute pixel coords
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const cr = (typeof canvasRadius === 'number' && canvasRadius > 0)
+        ? canvasRadius
+        : Math.min(canvas.width, canvas.height) / 2 - 10;
 
-    const trailColor = getComputedStyle(document.documentElement)
-                         .getPropertyValue('--trail-color').trim() || '#CEEC73';
-
-    for(let i=1;i<trail.length;i++){
-        const p0=trail[i-1],p1=trail[i]; const t=i/trail.length;
-        ctx.beginPath(); ctx.moveTo(cx+p0.x*canvasRadius,cy+p0.y*canvasRadius);
-        ctx.lineTo(cx+p1.x*canvasRadius,cy+p1.y*canvasRadius);
-        ctx.lineWidth=10*(t*2); ctx.lineCap='round'; ctx.strokeStyle=trailColor; ctx.stroke();
+    if (typeof x !== 'undefined' && typeof y !== 'undefined') {
+        // If incoming values look like pixels (abs > 1), convert to normalized
+        if (Math.abs(x) > 1.01 || Math.abs(y) > 1.01) {
+            trail.push({ x: (x - cx) / cr, y: (y - cy) / cr });
+        } else {
+            // already normalized
+            trail.push({ x: x, y: y });
+        }
+        if (trail.length > cfg.trail) trail.shift();
     }
-    ctx.globalAlpha=1;
+
+    // nothing to draw
+    if (!trail.length || trail.length < 2) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const trailColor = (getComputedStyle(document.documentElement)
+        .getPropertyValue('--trail-color') || '#CEEC73').trim();
+
+    // detect whether stored trail points are normalized (-1..1) or absolute pixels
+    const first = trail[0];
+    const entriesAreNormalized = Math.abs(first.x) <= 1.01 && Math.abs(first.y) <= 1.01;
+
+    for (let i = 1; i < trail.length; i++) {
+        const p0 = trail[i - 1];
+        const p1 = trail[i];
+        const t = i / trail.length; // newer segments -> larger t
+
+        const x0 = entriesAreNormalized ? (cx + p0.x * cr) : p0.x;
+        const y0 = entriesAreNormalized ? (cy + p0.y * cr) : p0.y;
+        const x1 = entriesAreNormalized ? (cx + p1.x * cr) : p1.x;
+        const y1 = entriesAreNormalized ? (cy + p1.y * cr) : p1.y;
+
+        // guard against NaN
+        if (!isFinite(x0) || !isFinite(y0) || !isFinite(x1) || !isFinite(y1)) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+
+        // original-style taper: thicker/opaque near head, thinner/faded toward tail
+        ctx.lineWidth = 10 * (t * 2); // same formula you used previously
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = trailColor;
+        ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1; // reset
 }
 
-function updateJoystick(pad){
-    const {x,y}=getSmoothedXY(pad);
-    drawTrail(x,y);
-    const cx=canvas.width/2,cy=canvas.height/2;
-    joystick.style.left=(cx+x*canvasRadius)+'px';
-    joystick.style.top=(cy+y*canvasRadius)+'px';
-    const dir=getClosestDirection(x,y);
-    updateMarkers(dir);
-}
 
-function loop(){
-    const pad=gamepadIndex!==null?navigator.getGamepads()[gamepadIndex]:null;
-    updateButtons(pad); updateJoystick(pad);
-    requestAnimationFrame(loop);
+function animate(){
+    const pad=navigator.getGamepads()[gamepadIndex];
+    updateButtons(pad);
+    const {x,y}=getStickXY(pad);
+    const cx=canvas.width/2, cy=canvas.height/2;
+    const radius=canvas.width/2-25;
+    const jx=cx+x*radius, jy=cy+y*radius;
+    joystick.style.left=jx+'px'; joystick.style.top=jy+'px';
+    const deg=(Math.atan2(y,x)*180/Math.PI+360)%360;
+    let idx=-1;
+    if(Math.hypot(x,y)>0.5) idx=Math.round(deg/45)%8;
+    updateMarkers(idx);
+    trail.push({x:jx,y:jy}); if(trail.length>cfg.trail) trail.shift();
+    drawTrail();
+    requestAnimationFrame(animate);
 }
-loop();
+animate();
 </script>
 </body>
 </html>
