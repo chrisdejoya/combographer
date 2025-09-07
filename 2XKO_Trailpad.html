@@ -384,7 +384,16 @@ function getStickXY(pad){
     return clampCircle(x,cfg.invertY?-y:y);
 }
 function updateMarkers(idx){
-    const dirs=[{x:1,y:0},{x:0.707,y:-0.707},{x:0,y:-1},{x:-0.707,y:-0.707},{x:-1,y:0},{x:-0.707,y:0.707},{x:0,y:1},{x:0.707,y:0.707}];
+    const dirs=[
+      {x:1,y:0},          // →
+      {x:0.707,y:0.707},  // ↗
+      {x:0,y:1},          // ↑
+      {x:-0.707,y:0.707}, // ↖
+      {x:-1,y:0},         // ←
+      {x:-0.707,y:-0.707},// ↙
+      {x:0,y:-1},         // ↓
+      {x:0.707,y:-0.707}  // ↘
+    ];
     const radiusPct = 45; // relative offset
     dirs.forEach((d,i)=>{
         const m=document.getElementById('marker'+i);
