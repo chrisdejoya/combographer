@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +55,6 @@
                 <label for="game-profile" class="block mb-2 text-sm font-medium">Game Profile</label>
                 <select id="game-profile" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
                     <option value="custom">Custom</option>
-                    <option value="2xko">2XKO</option>
                     <option value="street-fighter">Street Fighter (6-Button)</option>
                     <option value="tekken">Tekken (4-Button)</option>
                     <option value="gg-dbfz">Guilty Gear / DBFZ (5-Button)</option>
@@ -111,7 +109,6 @@
         const DEADZONE = 0.5;
 
         const PROFILES = {
-            '2XKO': { 0: 'T', 1: 'H', 2: 'L',  3: 'M', 4: 'P', 5: 'D', 6: 'S1', 7: 'S2', 10: 'Th', 11: 'Ta' },
             'street-fighter': { 0: 'LP', 1: 'MP', 2: 'LK', 3: 'MK', 4: 'HP', 5: 'HK', 6: 'P', 7: 'K' },
             'tekken': { 0: '1', 1: '2', 2: '3', 3: '4' },
             'gg-dbfz': { 0: 'P', 1: 'K', 2: 'S', 3: 'HS', 4: 'D' },
@@ -238,45 +235,19 @@
             if (h < -DEADZONE) return '4';
             return '5';
         }
-
-        function getDpadDirection(buttons) {
-            const up    = buttons[12]?.pressed; // standard mapping
-            const down  = buttons[13]?.pressed;
-            const left  = buttons[14]?.pressed;
-            const right = buttons[15]?.pressed;
-
-            if (up && left) return '7';
-            if (up && right) return '9';
-            if (down && left) return '1';
-            if (down && right) return '3';
-            if (up) return '8';
-            if (down) return '2';
-            if (left) return '4';
-            if (right) return '6';
-            return '5'; // neutral
-        }
         
         function processInput() {
             if (!gamepad) return;
-        
-            let dpadDir = getDpadDirection(gamepad.buttons);
-            let stickDir = getDirection(gamepad.axes);
-            let currentDirection = (dpadDir !== '5') ? dpadDir : stickDir;
-        
+
+            let currentDirection = getDirection(gamepad.axes);
             if (currentDirection !== '5' && inputHistory[inputHistory.length - 1] !== currentDirection) {
                 inputHistory.push(currentDirection);
-                if (inputHistory.length > 10) inputHistory.shift();
+                if(inputHistory.length > 10) inputHistory.shift();
             }
-        
+
             let pressedButtons = [];
             gamepad.buttons.forEach((button, i) => {
                 if (button.pressed && !prevButtons[i]) {
-                    if (i === 8) {
-                        comboString = comboString.trim().replace(/(>?\s*[^>+\s]+(\+[^>+\s]+)*)$/, "");
-                        comboOutput.textContent = comboString;
-                        prevButtons[i] = button.pressed;
-                        return;
-                    }
                     if (currentMapping[i]) {
                         pressedButtons.push(currentMapping[i]);
                     }
@@ -294,14 +265,14 @@
                         break;
                     }
                 }
-        
+
                 if (motionFound) {
                     comboString += (comboString ? " > " : "") + motionFound;
                     inputHistory = [];
                 } else if (inputHistory.length > 0 && inputHistory[inputHistory.length - 1] !== '5') {
                     comboString += (comboString ? " > " : "") + inputHistory[inputHistory.length - 1];
                 }
-        
+
                 comboString += (comboString && !comboString.endsWith(" ") ? "+" : "") + pressedButtons.join('+');
                 comboOutput.textContent = comboString;
                 scheduleClear();
