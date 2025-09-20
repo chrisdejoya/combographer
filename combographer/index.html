@@ -111,7 +111,7 @@
         const DEADZONE = 0.5;
 
         const PROFILES = {
-            '2XKO': { 0: 'T', 1: 'H', 2: 'L',  3: 'M', 4: 'P', 5: 'D', 6: 'S1', 7: 'S2', 10: 'Th', 11: 'Ta' },
+            '2xko': { 0: 'T', 1: 'H', 2: 'L',  3: 'M', 4: 'P', 5: 'D', 6: 'S1', 7: 'S2', 10: 'Th', 11: 'Ta' },
             'street-fighter': { 0: 'LP', 1: 'MP', 2: 'LK', 3: 'MK', 4: 'HP', 5: 'HK', 6: 'P', 7: 'K' },
             'tekken': { 0: '1', 1: '2', 2: '3', 3: '4' },
             'gg-dbfz': { 0: 'P', 1: 'K', 2: 'S', 3: 'HS', 4: 'D' },
@@ -120,12 +120,12 @@
         let currentMapping = PROFILES['street-fighter'];
 
         const MOTIONS = [
-            { name: '236', pattern: ['2', '3', '6'] },
-            { name: '214', pattern: ['2', '1', '4'] },
-            { name: '623', pattern: ['6', '2', '3'] },
-            { name: '421', pattern: ['4', '2', '1'] },
-            { name: '41236', pattern: ['4', '1', '2', '3', '6'] },
-            { name: '63214', pattern: ['6', '3', '2', '1', '4'] },
+            { name: '236', pattern: ['↓', '↘', '→'] },
+            { name: '214', pattern: ['↓', '↙', '←'] },
+            { name: '623', pattern: ['→', '↓', '↘'] },
+            { name: '421', pattern: ['←', '↓', '↙'] },
+            { name: '41236', pattern: ['←', '↙', '↓', '↘', '→'] },
+            { name: '63214', pattern: ['→', '↘', '↓', '↙', '←'] },
         ];
 
         function setupEventListeners() {
@@ -272,7 +272,7 @@
             gamepad.buttons.forEach((button, i) => {
                 if (button.pressed && !prevButtons[i]) {
                     if (i === 8) {
-                        comboString = comboString.trim().replace(/(>?\s*[^>+\s]+(\+[^>+\s]+)*)$/, "");
+                        comboString = comboString.replace(/\s*(>?\s*[^>+\s]+(\+[^>+\s]+)*)$/, "");
                         comboOutput.textContent = comboString;
                         prevButtons[i] = button.pressed;
                         return;
@@ -309,7 +309,10 @@
         }
         
         function gameLoop() {
-            if (!gamepad) return;
+            if (!gamepad) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
 
             const freshGamepad = navigator.getGamepads()[gamepad.index];
             if (freshGamepad) {
