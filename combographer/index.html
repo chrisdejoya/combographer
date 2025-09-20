@@ -1,331 +1,263 @@
+<script>
+const comboOutput = document.getElementById('combo-output');
+const settingsToggle = document.getElementById('settings-toggle');
+const settingsPanel = document.getElementById('settings-panel');
+const controllerStatus = document.getElementById('controller-status');
+const gameProfileSelect = document.getElementById('game-profile');
+const buttonMappingContainer = document.getElementById('button-mapping-container');
+const fontSizeInput = document.getElementById('font-size');
+const fontColorInput = document.getElementById('font-color');
+const clearDelayInput = document.getElementById('clear-delay');
+const clearButton = document.getElementById('clear-button');
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fighting Game Combo Notation Overlay</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chosen Palette: Slate Gray and Amber -->
-    <!-- Application Structure Plan: The application is structured as a single-page dashboard. The primary view is a clean, transparent overlay containing only the combo notation text, designed for direct use in OBS. A settings panel, toggled by a button in the corner, provides comprehensive customization for game profiles, button mapping, and appearance. This separation of concerns ensures a clean "streamer mode" by default, while allowing for deep configuration when needed. The user flow is: connect controller, configure settings (optional), and begin inputting combos, which are translated and displayed in real-time. This structure was chosen for maximum usability in a streaming context, prioritizing a non-intrusive display with powerful, accessible customization. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: Live Controller Inputs -> Goal: Provide feedback for mapping -> Viz: HTML/CSS based visual display -> Interaction: Highlights on press -> Justification: Gives users clear, immediate feedback on which button index corresponds to which physical button. Library: Vanilla JS + Tailwind CSS.
-        - Report Info: Combo Sequence -> Goal: Display combo notation on stream -> Viz: Dynamic Text Block -> Interaction: Real-time appending of notation -> Justification: This is the core functionality of the application. Library: Vanilla JS.
-        - Report Info: Game-specific rules -> Goal: Organize settings -> Viz: Dropdowns, text inputs, color pickers -> Interaction: User selection and input -> Justification: Allows for high customizability to fit different games and user preferences. Library: Vanilla JS + HTML Forms.
-        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body {
-            background-color: transparent;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            color: white;
+let gamepad = null;
+let prevButtons = [];
+let inputHistory = [];
+let comboString = "";
+let clearTimer = null;
+let lastBackspaceTime = 0;
+
+const DEADZONE = 0.5;
+const BACKSPACE_DELAY = 250; // ms between deletions
+
+// ↙↓↘ → ↗↑↖ ←
+const DIR_MAP = {
+  "1": "↙", "2": "↓", "3": "↘",
+  "4": "←", "5": "",  "6": "→",
+  "7": "↖", "8": "↑", "9": "↗"
+};
+
+const PROFILES = {
+  '2xko': { 0: 'T', 1: 'H', 2: 'L', 3: 'M', 4: 'P', 5: 'D', 6: 'S1', 7: 'S2', 10: 'Th', 11: 'Ta' },
+  'street-fighter': { 0: 'LP', 1: 'MP', 2: 'LK', 3: 'MK', 4: 'HP', 5: 'HK', 6: 'P', 7: 'K' },
+  'tekken': { 0: '1', 1: '2', 2: '3', 3: '4' },
+  'gg-dbfz': { 0: 'P', 1: 'K', 2: 'S', 3: 'HS', 4: 'D' },
+  'custom': {}
+};
+
+// Default to 2XKO
+let currentMapping = { ...PROFILES['2xko'] };
+gameProfileSelect.value = "2xko";
+
+const MOTIONS = [
+  { name: '236', pattern: ['2', '3', '6'] },
+  { name: '214', pattern: ['2', '1', '4'] },
+  { name: '623', pattern: ['6', '2', '3'] },
+  { name: '421', pattern: ['4', '2', '1'] },
+  { name: '41236', pattern: ['4', '1', '2', '3', '6'] },
+  { name: '63214', pattern: ['6', '3', '2', '1', '4'] },
+];
+
+function setupEventListeners() {
+  settingsToggle.addEventListener('click', () => {
+    settingsPanel.classList.toggle('settings-hidden');
+  });
+
+  gameProfileSelect.addEventListener('change', (e) => {
+    loadProfile(e.target.value);
+  });
+
+  fontSizeInput.addEventListener('input', updateAppearance);
+  fontColorInput.addEventListener('input', updateAppearance);
+
+  clearButton.addEventListener('click', clearCombo);
+
+  window.addEventListener("gamepadconnected", (e) => {
+    gamepad = e.gamepad;
+    controllerStatus.textContent = `Connected: ${gamepad.id}`;
+    controllerStatus.classList.remove('text-red-400');
+    controllerStatus.classList.add('text-green-400');
+    prevButtons = new Array(gamepad.buttons.length).fill(false);
+    createButtonMappingUI(gamepad.buttons.length);
+    loadProfile(gameProfileSelect.value);
+    gameLoop();
+  });
+
+  window.addEventListener("gamepaddisconnected", () => {
+    gamepad = null;
+    controllerStatus.textContent = "Controller disconnected.";
+    controllerStatus.classList.add('text-red-400');
+    controllerStatus.classList.remove('text-green-400');
+  });
+}
+
+function createButtonMappingUI(buttonCount) {
+  buttonMappingContainer.innerHTML = '';
+  for (let i = 0; i < buttonCount; i++) {
+    const div = document.createElement('div');
+    const label = document.createElement('label');
+    label.textContent = `Button ${i}`;
+    label.className = 'block text-sm font-medium';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = `button-map-${i}`;
+    input.dataset.index = i;
+    input.className = 'w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-1 mt-1 text-sm';
+    input.addEventListener('input', (e) => {
+      currentMapping[e.target.dataset.index] = e.target.value;
+      if (gameProfileSelect.value !== 'custom') gameProfileSelect.value = 'custom';
+    });
+    div.appendChild(label);
+    div.appendChild(input);
+    buttonMappingContainer.appendChild(div);
+  }
+}
+
+function loadProfile(profileName) {
+  if (profileName !== 'custom') {
+    currentMapping = { ...PROFILES[profileName] };
+  }
+  updateMappingUI();
+}
+
+function updateMappingUI() {
+  for (const key in currentMapping) {
+    const input = document.getElementById(`button-map-${key}`);
+    if (input) {
+      input.value = currentMapping[key] || '';
+    }
+  }
+  const allInputs = buttonMappingContainer.querySelectorAll('input');
+  allInputs.forEach(input => {
+    if (!currentMapping.hasOwnProperty(input.dataset.index)) {
+      input.value = '';
+    }
+  });
+}
+
+function updateAppearance() {
+  comboOutput.style.fontSize = `${fontSizeInput.value}px`;
+  comboOutput.style.color = fontColorInput.value;
+}
+
+function clearCombo() {
+  comboString = "";
+  inputHistory = [];
+  comboOutput.textContent = comboString;
+}
+
+function scheduleClear() {
+  clearTimeout(clearTimer);
+  clearTimer = setTimeout(clearCombo, parseInt(clearDelayInput.value, 10));
+}
+
+function getDirection(axes) {
+  const [h, v] = axes;
+  if (Math.abs(h) < DEADZONE && Math.abs(v) < DEADZONE) return '5';
+  if (v > DEADZONE) {
+    if (h > DEADZONE) return '3';
+    if (h < -DEADZONE) return '1';
+    return '2';
+  }
+  if (v < -DEADZONE) {
+    if (h > DEADZONE) return '9';
+    if (h < -DEADZONE) return '7';
+    return '8';
+  }
+  if (h > DEADZONE) return '6';
+  if (h < -DEADZONE) return '4';
+  return '5';
+}
+
+function getDpadDirection(buttons) {
+  const up = buttons[12]?.pressed;
+  const down = buttons[13]?.pressed;
+  const left = buttons[14]?.pressed;
+  const right = buttons[15]?.pressed;
+
+  if (up && left) return '7';
+  if (up && right) return '9';
+  if (down && left) return '1';
+  if (down && right) return '3';
+  if (up) return '8';
+  if (down) return '2';
+  if (left) return '4';
+  if (right) return '6';
+  return '5';
+}
+
+function processInput() {
+  if (!gamepad) return;
+
+  let dpadDir = getDpadDirection(gamepad.buttons);
+  let stickDir = getDirection(gamepad.axes);
+  let currentDirection = (dpadDir !== '5') ? dpadDir : stickDir;
+
+  if (currentDirection !== '5' && inputHistory[inputHistory.length - 1] !== currentDirection) {
+    inputHistory.push(currentDirection);
+    if (inputHistory.length > 10) inputHistory.shift();
+  }
+
+  let pressedButtons = [];
+  gamepad.buttons.forEach((button, i) => {
+    if (button.pressed && !prevButtons[i]) {
+      if (i === 8) {
+        const now = Date.now();
+        if (now - lastBackspaceTime > BACKSPACE_DELAY) {
+          comboString = comboString.replace(/\s*(>?\s*[^>+\s]+(\+[^>+\s]+)*)$/, "");
+          comboOutput.textContent = comboString;
+          lastBackspaceTime = now;
         }
-        #settings-panel {
-            transition: transform 0.3s ease-in-out;
-        }
-        .settings-hidden {
-            transform: translateX(100%);
-        }
-    </style>
-</head>
-<body class="w-screen h-screen">
+        prevButtons[i] = button.pressed;
+        return;
+      }
+      if (currentMapping[i]) {
+        pressedButtons.push(currentMapping[i]);
+      }
+    }
+    prevButtons[i] = button.pressed;
+  });
 
-    <div id="app" class="relative w-full h-full">
-        <div id="combo-output-container" class="absolute bottom-10 left-1/2 -translate-x-1/2 p-4 rounded-lg bg-slate-900/50 backdrop-blur-sm">
-            <p id="combo-output" class="text-4xl font-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);"></p>
-        </div>
+  if (pressedButtons.length > 0) {
+    let motionFound = '';
+    for (const motion of MOTIONS) {
+      const historyStr = inputHistory.join('');
+      const patternStr = motion.pattern.join('');
+      if (historyStr.endsWith(patternStr)) {
+        motionFound = motion.name;
+        break;
+      }
+    }
 
-        <button id="settings-toggle" class="absolute top-4 right-4 bg-amber-500 text-slate-900 p-2 rounded-full shadow-lg hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300 z-20">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-        </button>
+    if (motionFound) {
+      comboString += (comboString ? " > " : "") + motionFound;
+      inputHistory = [];
+    } else if (inputHistory.length > 1) {
+      // Check double tap forward/back
+      const last = inputHistory[inputHistory.length - 1];
+      const prev = inputHistory[inputHistory.length - 2];
+      if (last === prev && (last === "6" || last === "4")) {
+        comboString += (comboString ? " > " : "") + (last === "6" ? "→→" : "←←");
+        inputHistory = [];
+      } else if (last !== "5") {
+        comboString += (comboString ? " > " : "") + DIR_MAP[last];
+      }
+    } else if (inputHistory.length > 0 && inputHistory[inputHistory.length - 1] !== '5') {
+      comboString += (comboString ? " > " : "") + DIR_MAP[inputHistory[inputHistory.length - 1]];
+    }
 
-        <div id="settings-panel" class="settings-hidden fixed top-0 right-0 h-full w-full max-w-md bg-slate-800 shadow-2xl p-6 overflow-y-auto z-10 text-slate-200">
-            <h2 class="text-2xl font-bold mb-6 text-amber-400">Settings</h2>
+    if (pressedButtons.length > 0) {
+      comboString += (comboString && !comboString.endsWith(" ") ? "+" : "") + pressedButtons.join('+');
+    }
 
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold border-b border-slate-600 pb-2 mb-3 text-slate-300">Controller Status</h3>
-                <p id="controller-status" class="text-slate-400">No controller connected. Press any button on your controller to connect.</p>
-            </div>
-            
-            <div class="mb-6">
-                 <h3 class="text-lg font-semibold border-b border-slate-600 pb-2 mb-3 text-slate-300">Configuration</h3>
-                <p class="text-slate-400 text-sm mb-4">Select a game profile to load default button mappings, or create your own custom layout below. The application will attempt to recognize common special move inputs (like quarter-circles) and display them in standard numpad notation.</p>
-                <label for="game-profile" class="block mb-2 text-sm font-medium">Game Profile</label>
-                <select id="game-profile" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <option value="custom">Custom</option>
-                    <option value="2xko">2XKO</option>
-                    <option value="street-fighter">Street Fighter (6-Button)</option>
-                    <option value="tekken">Tekken (4-Button)</option>
-                    <option value="gg-dbfz">Guilty Gear / DBFZ (5-Button)</option>
-                </select>
-            </div>
+    comboOutput.textContent = comboString;
+    scheduleClear();
+  }
+}
 
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold border-b border-slate-600 pb-2 mb-3 text-slate-300">Button Mapping</h3>
-                <div id="button-mapping-container" class="grid grid-cols-2 gap-4"></div>
-            </div>
+function gameLoop() {
+  if (!gamepad) {
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+  const freshGamepad = navigator.getGamepads()[gamepad.index];
+  if (freshGamepad) {
+    gamepad = freshGamepad;
+    processInput();
+  }
+  requestAnimationFrame(gameLoop);
+}
 
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold border-b border-slate-600 pb-2 mb-3 text-slate-300">Appearance</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label for="font-size" class="block mb-2 text-sm font-medium">Font Size (px)</label>
-                        <input type="number" id="font-size" value="36" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2">
-                    </div>
-                    <div>
-                        <label for="font-color" class="block mb-2 text-sm font-medium">Font Color</label>
-                        <input type="color" id="font-color" value="#FFFFFF" class="w-full h-10 p-1 bg-slate-700 border border-slate-600 rounded-lg">
-                    </div>
-                    <div>
-                         <label for="clear-delay" class="block mb-2 text-sm font-medium">Clear Delay (ms)</label>
-                        <input type="number" id="clear-delay" value="2000" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2">
-                    </div>
-                </div>
-            </div>
-            
-             <button id="clear-button" class="w-full bg-amber-500 text-slate-900 font-bold py-2 px-4 rounded-lg hover:bg-amber-400">Clear Combo</button>
-        </div>
-    </div>
-
-    <script>
-        const comboOutput = document.getElementById('combo-output');
-        const settingsToggle = document.getElementById('settings-toggle');
-        const settingsPanel = document.getElementById('settings-panel');
-        const controllerStatus = document.getElementById('controller-status');
-        const gameProfileSelect = document.getElementById('game-profile');
-        const buttonMappingContainer = document.getElementById('button-mapping-container');
-        const fontSizeInput = document.getElementById('font-size');
-        const fontColorInput = document.getElementById('font-color');
-        const clearDelayInput = document.getElementById('clear-delay');
-        const clearButton = document.getElementById('clear-button');
-
-        let gamepad = null;
-        let prevButtons = [];
-        let inputHistory = [];
-        let comboString = "";
-        let clearTimer = null;
-
-        const DEADZONE = 0.5;
-
-        const PROFILES = {
-            '2xko': { 0: 'T', 1: 'H', 2: 'L',  3: 'M', 4: 'P', 5: 'D', 6: 'S1', 7: 'S2', 10: 'Th', 11: 'Ta' },
-            'street-fighter': { 0: 'LP', 1: 'MP', 2: 'LK', 3: 'MK', 4: 'HP', 5: 'HK', 6: 'P', 7: 'K' },
-            'tekken': { 0: '1', 1: '2', 2: '3', 3: '4' },
-            'gg-dbfz': { 0: 'P', 1: 'K', 2: 'S', 3: 'HS', 4: 'D' },
-            'custom': {}
-        };
-        let currentMapping = PROFILES['street-fighter'];
-
-        const MOTIONS = [
-            { name: '236', pattern: ['↓', '↘', '→'] },
-            { name: '214', pattern: ['↓', '↙', '←'] },
-            { name: '623', pattern: ['→', '↓', '↘'] },
-            { name: '421', pattern: ['←', '↓', '↙'] },
-            { name: '41236', pattern: ['←', '↙', '↓', '↘', '→'] },
-            { name: '63214', pattern: ['→', '↘', '↓', '↙', '←'] },
-        ];
-
-        function setupEventListeners() {
-            settingsToggle.addEventListener('click', () => {
-                settingsPanel.classList.toggle('settings-hidden');
-            });
-
-            gameProfileSelect.addEventListener('change', (e) => {
-                loadProfile(e.target.value);
-            });
-
-            fontSizeInput.addEventListener('input', updateAppearance);
-            fontColorInput.addEventListener('input', updateAppearance);
-            
-            clearButton.addEventListener('click', clearCombo);
-
-            window.addEventListener("gamepadconnected", (e) => {
-                gamepad = e.gamepad;
-                controllerStatus.textContent = `Connected: ${gamepad.id}`;
-                controllerStatus.classList.remove('text-red-400');
-                controllerStatus.classList.add('text-green-400');
-                prevButtons = new Array(gamepad.buttons.length).fill(false);
-                createButtonMappingUI(gamepad.buttons.length);
-                loadProfile(gameProfileSelect.value);
-                gameLoop();
-            });
-
-            window.addEventListener("gamepaddisconnected", () => {
-                gamepad = null;
-                controllerStatus.textContent = "Controller disconnected.";
-                controllerStatus.classList.add('text-red-400');
-                controllerStatus.classList.remove('text-green-400');
-            });
-        }
-        
-        function createButtonMappingUI(buttonCount) {
-            buttonMappingContainer.innerHTML = '';
-            for (let i = 0; i < buttonCount; i++) {
-                const div = document.createElement('div');
-                const label = document.createElement('label');
-                label.textContent = `Button ${i}`;
-                label.className = 'block text-sm font-medium';
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = `button-map-${i}`;
-                input.dataset.index = i;
-                input.className = 'w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-1 mt-1 text-sm';
-                input.addEventListener('input', (e) => {
-                    currentMapping[e.target.dataset.index] = e.target.value;
-                    if(gameProfileSelect.value !== 'custom') gameProfileSelect.value = 'custom';
-                });
-                div.appendChild(label);
-                div.appendChild(input);
-                buttonMappingContainer.appendChild(div);
-            }
-        }
-        
-        function loadProfile(profileName) {
-            if(profileName !== 'custom'){
-                 currentMapping = { ...PROFILES[profileName] };
-            }
-            updateMappingUI();
-        }
-        
-        function updateMappingUI() {
-            for (const key in currentMapping) {
-                const input = document.getElementById(`button-map-${key}`);
-                if (input) {
-                    input.value = currentMapping[key] || '';
-                }
-            }
-             const allInputs = buttonMappingContainer.querySelectorAll('input');
-            allInputs.forEach(input => {
-                if (!currentMapping.hasOwnProperty(input.dataset.index)) {
-                    input.value = '';
-                }
-            });
-        }
-
-        function updateAppearance() {
-            comboOutput.style.fontSize = `${fontSizeInput.value}px`;
-            comboOutput.style.color = fontColorInput.value;
-        }
-        
-        function clearCombo() {
-            comboString = "";
-            inputHistory = [];
-            comboOutput.textContent = comboString;
-        }
-        
-        function scheduleClear() {
-            clearTimeout(clearTimer);
-            clearTimer = setTimeout(clearCombo, clearDelayInput.value);
-        }
-
-        function getDirection(axes) {
-            const [h, v] = axes;
-            if (Math.abs(h) < DEADZONE && Math.abs(v) < DEADZONE) return '5';
-            if (v > DEADZONE) {
-                if (h > DEADZONE) return '3';
-                if (h < -DEADZONE) return '1';
-                return '2';
-            }
-            if (v < -DEADZONE) {
-                if (h > DEADZONE) return '9';
-                if (h < -DEADZONE) return '7';
-                return '8';
-            }
-            if (h > DEADZONE) return '6';
-            if (h < -DEADZONE) return '4';
-            return '5';
-        }
-
-        function getDpadDirection(buttons) {
-            const up    = buttons[12]?.pressed; // standard mapping
-            const down  = buttons[13]?.pressed;
-            const left  = buttons[14]?.pressed;
-            const right = buttons[15]?.pressed;
-
-            if (up && left) return '7';
-            if (up && right) return '9';
-            if (down && left) return '1';
-            if (down && right) return '3';
-            if (up) return '8';
-            if (down) return '2';
-            if (left) return '4';
-            if (right) return '6';
-            return '5'; // neutral
-        }
-        
-        function processInput() {
-            if (!gamepad) return;
-        
-            let dpadDir = getDpadDirection(gamepad.buttons);
-            let stickDir = getDirection(gamepad.axes);
-            let currentDirection = (dpadDir !== '5') ? dpadDir : stickDir;
-        
-            if (currentDirection !== '5' && inputHistory[inputHistory.length - 1] !== currentDirection) {
-                inputHistory.push(currentDirection);
-                if (inputHistory.length > 10) inputHistory.shift();
-            }
-        
-            let pressedButtons = [];
-            gamepad.buttons.forEach((button, i) => {
-                if (button.pressed && !prevButtons[i]) {
-                    if (i === 8) {
-                        comboString = comboString.replace(/\s*(>?\s*[^>+\s]+(\+[^>+\s]+)*)$/, "");
-                        comboOutput.textContent = comboString;
-                        prevButtons[i] = button.pressed;
-                        return;
-                    }
-                    if (currentMapping[i]) {
-                        pressedButtons.push(currentMapping[i]);
-                    }
-                }
-                prevButtons[i] = button.pressed;
-            });
-            
-            if (pressedButtons.length > 0) {
-                let motionFound = '';
-                for(const motion of MOTIONS) {
-                    const historyStr = inputHistory.join('');
-                    const patternStr = motion.pattern.join('');
-                    if (historyStr.endsWith(patternStr)) {
-                        motionFound = motion.name;
-                        break;
-                    }
-                }
-        
-                if (motionFound) {
-                    comboString += (comboString ? " > " : "") + motionFound;
-                    inputHistory = [];
-                } else if (inputHistory.length > 0 && inputHistory[inputHistory.length - 1] !== '5') {
-                    comboString += (comboString ? " > " : "") + inputHistory[inputHistory.length - 1];
-                }
-        
-                comboString += (comboString && !comboString.endsWith(" ") ? "+" : "") + pressedButtons.join('+');
-                comboOutput.textContent = comboString;
-                scheduleClear();
-            }
-        }
-        
-        function gameLoop() {
-            if (!gamepad) {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
-
-            const freshGamepad = navigator.getGamepads()[gamepad.index];
-            if (freshGamepad) {
-                gamepad = freshGamepad;
-                processInput();
-            }
-            
-            requestAnimationFrame(gameLoop);
-        }
-
-        setupEventListeners();
-        updateAppearance();
-
-    </script>
-</body>
-</html>
+setupEventListeners();
+updateAppearance();
+</script>
