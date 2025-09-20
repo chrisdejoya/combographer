@@ -235,11 +235,30 @@
             if (h < -DEADZONE) return '4';
             return '5';
         }
+
+        function getDpadDirection(buttons) {
+            const up    = buttons[12]?.pressed; // standard mapping
+            const down  = buttons[13]?.pressed;
+            const left  = buttons[14]?.pressed;
+            const right = buttons[15]?.pressed;
+
+            if (up && left) return '7';
+            if (up && right) return '9';
+            if (down && left) return '1';
+            if (down && right) return '3';
+            if (up) return '8';
+            if (down) return '2';
+            if (left) return '4';
+            if (right) return '6';
+            return '5'; // neutral
+        }
         
-        function processInput() {
+        function processInput() {            
             if (!gamepad) return;
 
-            let currentDirection = getDirection(gamepad.axes);
+            let stickDir = getDirection(gamepad.axes);
+            let dpadDir = getDpadDirection(gamepad.buttons);
+            let currentDirection = (dpadDir !== '5') ? dpadDir : stickDir;
             if (currentDirection !== '5' && inputHistory[inputHistory.length - 1] !== currentDirection) {
                 inputHistory.push(currentDirection);
                 if(inputHistory.length > 10) inputHistory.shift();
