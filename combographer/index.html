@@ -55,6 +55,7 @@
                 <label for="game-profile" class="block mb-2 text-sm font-medium">Game Profile</label>
                 <select id="game-profile" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
                     <option value="custom">Custom</option>
+                    <option value="2xko">2XKO</option>
                     <option value="street-fighter">Street Fighter (6-Button)</option>
                     <option value="tekken">Tekken (4-Button)</option>
                     <option value="gg-dbfz">Guilty Gear / DBFZ (5-Button)</option>
@@ -269,6 +270,12 @@
             let pressedButtons = [];
             gamepad.buttons.forEach((button, i) => {
                 if (button.pressed && !prevButtons[i]) {
+                    if (i === 8) {
+                        comboString = comboString.trim().replace(/(>?\s*[^>+\s]+(\+[^>+\s]+)*)$/, "");
+                        comboOutput.textContent = comboString;
+                        prevButtons[i] = button.pressed;
+                        return;
+                    }
                     if (currentMapping[i]) {
                         pressedButtons.push(currentMapping[i]);
                     }
