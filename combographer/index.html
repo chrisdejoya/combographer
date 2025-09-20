@@ -253,17 +253,18 @@
             return '5'; // neutral
         }
         
-        function processInput() {            
+        function processInput() {
             if (!gamepad) return;
-
-            let stickDir = getDirection(gamepad.axes);
+        
             let dpadDir = getDpadDirection(gamepad.buttons);
+            let stickDir = getDirection(gamepad.axes);
             let currentDirection = (dpadDir !== '5') ? dpadDir : stickDir;
+        
             if (currentDirection !== '5' && inputHistory[inputHistory.length - 1] !== currentDirection) {
                 inputHistory.push(currentDirection);
-                if(inputHistory.length > 10) inputHistory.shift();
+                if (inputHistory.length > 10) inputHistory.shift();
             }
-
+        
             let pressedButtons = [];
             gamepad.buttons.forEach((button, i) => {
                 if (button.pressed && !prevButtons[i]) {
@@ -284,14 +285,14 @@
                         break;
                     }
                 }
-
+        
                 if (motionFound) {
                     comboString += (comboString ? " > " : "") + motionFound;
                     inputHistory = [];
                 } else if (inputHistory.length > 0 && inputHistory[inputHistory.length - 1] !== '5') {
                     comboString += (comboString ? " > " : "") + inputHistory[inputHistory.length - 1];
                 }
-
+        
                 comboString += (comboString && !comboString.endsWith(" ") ? "+" : "") + pressedButtons.join('+');
                 comboOutput.textContent = comboString;
                 scheduleClear();
