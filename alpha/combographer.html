@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Combo Timeline — Updated</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <div id="topbar" class="topbar">
+        <label class="file-label">
+            Choose video
+            <input id="video-upload" type="file" accept="video/*" />
+        </label>
+        <div id="video-info" class="video-info">No video loaded</div>
+    </div>
+
+    <div id="video-container">
+        <video id="video-player" preload="metadata" style="display:none; max-width:100%"></video>
+    </div>
+
+    <div id="combo-output-container">
+        <div id="combo-output"></div>
+    </div>
+
+    <div id="timeline-container">
+        <div id="timeline"></div>
+        <div id="timeline-head"></div>
+    </div>
+
+    <div id="time-readout">0.00s / 0f (of 10.00s / 600f)</div>
+
+    <div id="state-popup">
+    </div>
+
+    <button id="settings-toggle" class="p-2 rounded-full bg-amber-500 text-slate-900">⚙</button>
+    <div id="settings-panel">
+        <h3 class="settings-title">Settings</h3>
+        <label for="timeline-duration" class="settings-label">Timeline Duration (seconds)</label>
+        <input id="timeline-duration" type="number" min="1" value="10" />
+        <div class="spacer"></div>
+        <button id="clear-button" class="w-full p-2 rounded bg-amber-500 text-black">Clear Timeline</button>
+    </div>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
