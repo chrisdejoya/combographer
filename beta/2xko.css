@@ -1,0 +1,227 @@
+/* ==============================
+   Fonts
+============================== */
+@import url("https://db.onlinewebfonts.com/c/aef9b111c5dbb6ed6cb40376e42ee322?family=Swis721+Ex+BT+Bold");
+
+@font-face {
+  font-family: "Swiss";
+  src: url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.eot");
+  src: url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.eot?#iefix") format("embedded-opentype"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.woff") format("woff"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.ttf") format("truetype"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.svg#Swis721 Ex BT Bold") format("svg");
+}
+
+/* ==============================
+   Base Styles
+============================== */
+body {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+  font-family: "Swiss";
+}
+
+/* ==============================
+   Output Container
+============================== */
+#outputContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.97);
+  border-top: 3px solid #444;
+  border-bottom: 3px solid #444;
+  box-shadow: 0px 5px 10px #0002;  
+  padding: 5px 0px 10px 0px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: default;
+  z-index: 1;
+}
+
+#comboOutput {
+  min-height: 60px;
+  color: #fff;
+  user-select: none;
+  line-height: 65px;
+}
+
+/* ==============================
+   Input Circles
+============================== */
+.input {
+  display: inline-block;
+  vertical-align: middle;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  line-height: 60px;
+  font-size: 35px;  
+  color: #000;
+  box-shadow: 0 1px 2px 1px #000;
+  outline: 2px solid #fff1;
+  outline-offset: -2px;
+}
+
+/* Color-coded inputs/nodes */
+.node.L, .input.L { background: #4caf50; }
+.node.M, .input.M { background: #ffc107; }
+.node.H, .input.H { background: #f44336; }
+.node.S1, .input.S1 { background: #00bcd4; }
+.node.S2, .input.S2 { background: #009688; }
+.node.D, .input.D { background: #9c27b0; }
+.node.T, .input.T { background: #2196f3; }
+.node.P, .input.P { background: #ff5722; }
+
+/* ==============================
+   Arrows
+============================== */
+.arrow {
+  display: inline-block;
+  vertical-align: middle;
+  width: 40px;
+  height: 40px;
+  margin: 0 2px;
+  background: center / contain no-repeat;
+  filter: brightness(0.9);
+}
+
+.arrow.N  { background-image: url("images/n.svg"); }
+.arrow.NE { background-image: url("images/ne.svg"); }
+.arrow.E  { background-image: url("images/e.svg"); }
+.arrow.SE { background-image: url("images/se.svg"); }
+.arrow.S  { background-image: url("images/s.svg"); }
+.arrow.SW { background-image: url("images/sw.svg"); }
+.arrow.W  { background-image: url("images/w.svg"); }
+.arrow.NW { background-image: url("images/nw.svg"); }
+
+/* ==============================
+   Double Dash (FF/BB)
+============================== */
+.dash {
+  display: inline-block;
+  vertical-align: middle;
+  width: 50px;
+  height: 40px;
+  margin: 0 2px;
+  background-repeat: no-repeat, no-repeat;
+  background-size: contain, contain;
+  filter: brightness(0.9);
+}
+
+.dash.L {
+  background-image: url("images/w.svg"), url("images/w.svg");
+  background-position: 10px, 0;
+}
+
+.dash.R {
+  background-image: url("images/e.svg"), url("images/e.svg");
+  background-position: -10px, 0;
+}
+
+/* ==============================
+   Parentheses & Conditions
+============================== */
+.parentheses {
+  display: inline-block;
+  vertical-align: middle;
+  width: 50px;
+  height: 60px;
+  color: #fff;
+}
+
+.condition {
+  display: inline-flex;
+  vertical-align: middle;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  font-size: 16px;
+  text-shadow: 0 2px 2px #000;
+  line-height: 0.9;
+  padding-left: 5px;
+  padding-right: 5px;
+  text-transform: uppercase;
+}
+
+.condition.white {
+	color: #fff;
+}
+
+.condition.gray {
+	color: #666;
+}
+
+/* ==============================
+   Timeline
+============================== */
+#timelineContainer {
+  position: absolute;
+  bottom: 5px;
+  width: 100%;
+  height: 30px;
+  background-color: rgba(0, 0, 0, 0.75);
+  transform: translateY(38px);
+  z-index: 2;
+}
+
+#timeline {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin: 0 20px;
+}
+
+#timeline .node {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px 1px #000;
+  color: transparent;
+  font-size: 10px;
+  font-weight: 1200;
+  letter-spacing: -1px;
+  line-height: 12px; /* vertical centering */
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+  transform: translateX(-50%);
+}
+
+#timeline .node:active {
+  cursor: grabbing;
+}
+
+#timeline .connector {	
+  display: inline-block;
+  height: 20px;
+  background: transparent;
+}
+
+/* ==============================
+   Connectors & Symbols
+============================== */
+.connect.arrow {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 30px;
+  margin: 0 10px;
+  background: center / contain no-repeat url("images/arrow.svg");
+  filter: brightness(0.35);
+}
+
+.plus {
+  display: inline-block;
+  vertical-align: middle;
+  width: 25px;
+  height: 25px;
+  margin: 0 5px;
+  background: center / contain no-repeat url("images/plus.svg");
+  filter: brightness(0.5);
+}

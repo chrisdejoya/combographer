@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Combographer</title>
+  <link rel="stylesheet" href="2xko.css" />
+</head>
+
+<body>
+  <div id="outputContainer"> <!-- Main output -->
+	<div id="comboOutput">
+	
+		<span class="input L">L</span><span class="connect arrow"></span>
+		<span class="arrow N"></span>
+		<span class="arrow E"></span>
+		<span class="input M">M</span><span class="connect arrow"></span>
+		<span class="condition gray">OR</span>
+		<span class="input H">H</span>
+		<span class="arrow W"></span>
+		<span class="input D">D</span>
+		<span class="condition white">Hold</span><span class="dash L"></span><span class="connect arrow"></span>
+		<span class="dash R"></span>
+		<span class="arrow S"></span>
+		<span class="input T">T</span><span class="connect arrow"></span>
+		<span class="arrow NE"></span>
+
+		<span class="input S1">S1</span>
+			<span class="plus"></span>
+		<span class="input S2">S2</span>
+
+		<span class="arrow NW"></span>
+		<span class="input P">P</span><span class="connect arrow"></span>
+		<span class="arrow SW"></span>
+		<span class="arrow SE"></span>
+		
+		<span class="input L">L</span>
+		<span class="arrow N"></span>
+		<span class="condition gray">IN<br />AIR</span><span class="input M">M</span>
+		<span class="arrow E"></span>
+		<span class="input M">M</span>
+		<span class="condition gray">OR</span>
+		<span class="input H">H</span><span class="connect arrow"></span>
+		<span class="arrow W"></span>		
+		<span class="input D">D</span>
+		<span class="dash L"></span>
+		<span class="dash R"></span>
+		<span class="arrow S"></span>
+		<span class="input T">T</span><span class="connect arrow"></span>
+		<span class="arrow NE"></span>
+
+		<span class="input S1">S1</span><span class="plus"></span>
+		<span class="input S2">S2</span>
+
+		<span class="arrow NW"></span>
+		<span class="input P">P</span><span class="connect arrow"></span>
+		<span class="arrow SW"></span>
+		<span class="arrow SE"></span>
+		<!-- Mockup
+		-->
+	</div>
+	  <div id="timelineContainer"> <!-- Timeline track with nodes -->
+		<div id="timeline">
+			
+			<span class="node L">L</span>
+			<span class="connector"></span>
+			<span class="node M">M</span>
+			<span class="connector"></span>
+			<span class="node H">H</span>
+			<span class="node D">D</span>
+			<span class="node T">T</span>
+			<span class="node S1">S1</span>
+			<span class="node S2">S2</span>
+			<span class="node P">P</span>
+		<!-- Mockup	-->
+		</div>
+		<div id="start"></div>
+		<div id="current"></div>
+		<div id="end"></div>    
+		<div id="playhead"></div>
+	  </div>
+  </div>
+  
+
+      
+  <div id="popup"></div> <!-- Context popup menu -->
+  <div id="settings"> <!-- Settings panel -->
+    <div class="section" id="controllers"></div>
+	<div class="section" id="mapping"></div>
+	<div class="section" id="game"></div>
+	<div class="section" id="user"></div>
+  </div>
+  
+  <textarea id="clipboard"></textarea> <!-- Used to store standard notation -->
+
+  <script src="main.js"></script>
+</body>
+</html>
